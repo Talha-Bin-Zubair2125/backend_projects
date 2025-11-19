@@ -1,0 +1,220 @@
+/* Body Styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #e0eafc);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 50px 0;
+  min-height: 100vh;
+}
+
+/* Main Container */
+.feedback-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 40px 35px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  max-width: 700px;
+  width: 95%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feedback-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+}
+
+/* Title */
+.feedback-title {
+  font-size: 2.4rem;
+  margin-bottom: 30px;
+  color: #222;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* Row for Name & Email */
+.feedback-row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.feedback-row input {
+  flex: 1;
+}
+
+/* Inputs and Textarea Styling */
+.feedback-input {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.feedback-input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 12px rgba(108, 99, 255, 0.3);
+}
+
+/* Label Styling */
+.feedback-label {
+  width: 100%;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Textarea Styling */
+.feedback-textarea {
+  width: 100%;
+  padding: 16px;
+  margin-top: 10px;
+  border-radius: 14px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 140px;
+  transition: all 0.3s ease;
+}
+
+.feedback-textarea:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 12px rgba(108, 99, 255, 0.3);
+}
+
+/* Buttons */
+.feedback-button {
+  padding: 12px 32px;
+  margin-top: 20px;
+  margin-right: 10px;
+  background: linear-gradient(90deg, #6c63ff, #3f3fff);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  text-align: center;
+}
+
+.feedback-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+}
+
+/* Date Range Container */
+.date-range-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Labels in Date Range */
+.date-range-container label {
+  flex: 1 1 180px; /* flexible but minimum width */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Date Inputs */
+.date-range-container input[type="date"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 5px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.date-range-container input[type="date"]:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 10px rgba(108, 99, 255, 0.25);
+}
+
+/* Search Button in Date Range */
+.date-range-container .search-btn {
+  flex: 0 0 160px;
+  padding: 12px 20px;
+  margin-bottom: 5px; /* aligns with inputs */
+}
+
+/* Backend Response Display */
+.feedback-response {
+  margin-top: 20px;
+  padding: 14px 18px;
+  width: 100%;
+  background-color: #e8f5e9;
+  border-left: 5px solid #4caf50;
+  border-radius: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Feedback List */
+.feedback-list {
+  width: 100%;
+  margin-top: 30px;
+}
+
+.feedback-list h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+  letter-spacing: 0.5px;
+}
+
+.feedback-card {
+  background-color: #f9f9f9;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .feedback-row {
+    flex-direction: column;
+  }
+
+  .date-range-container {
+    flex-direction: column;
+  }
+
+  .date-range-container .search-btn {
+    width: 100%;
+  }
+
+  .feedback-container {
+    padding: 25px 20px;
+  }
+}
