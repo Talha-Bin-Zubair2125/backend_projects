@@ -1,0 +1,2 @@
+// Routes call controllers 
+MongoDB allows multiple databases on the same server and even on the same connection URL. In MERN applications, we usually create a single database connection and manage data using collections rather than multiple databases.
