@@ -24,7 +24,6 @@ const register_user = async (req, res) => {
 
 const login_user = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   try {
     const existingUser = await user_model.findOne({ email });
@@ -32,7 +31,7 @@ const login_user = async (req, res) => {
       return res.status(400).json({ message: "User Not Found" });
     }
     const matchpassword = await bcrypt.compare(password, existingUser.password);
-    console.log(matchpassword);
+  
 
     if (!matchpassword) {
       return res.status(400).json({ message: "Password Incorrect" });

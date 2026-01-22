@@ -7,8 +7,9 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null); // logged-in user
   const [users, setUsers] = useState([]); // all users (admin)
+  const [tasks, setTasks] = useState([]); // for tasks
   return (
-    <AuthContext.Provider value={{ authUser, setAuthUser, users, setUsers }}>
+    <AuthContext.Provider value={{ authUser, setAuthUser, users, setUsers, tasks, setTasks }}>
       {children}
     </AuthContext.Provider>
   );

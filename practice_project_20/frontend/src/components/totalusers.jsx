@@ -16,7 +16,7 @@ function Totalusers() {
       const { data } = await axios.get("http://localhost:3000/admin/getusers", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      
       setUsers(data);
     } catch (error) {
       console.log(error.response?.data || error);
