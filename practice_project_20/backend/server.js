@@ -16,6 +16,8 @@ const auth_route = require('./routes/authroutes');
 app.use('/auth',auth_route);
 const task_route = require('./routes/taskroutes');
 app.use('/admin',task_route);
+const task_route_for_user = require('./routes/taskroutes');
+app.use('/user',task_route_for_user)
 // Importing DB Connection
 const connectDB = require('./db');
 connectDB();

@@ -6,6 +6,8 @@ import Userprofile from "./pages/user_dashboard/userprofile";
 import Adminprofile from "./pages/admin_dashboard/adminprofile";
 import Totalusers from "./components/totalusers";
 import Createtask from "./components/createtask";
+import Totaltask from "./components/totaltask";
+
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 function App() {
@@ -19,6 +21,7 @@ function App() {
           <Route path="/admindashboard" element={<Adminprofile />} />
           <Route path="/viewusers" element={<Totalusers />} />
           <Route path="/createtask" element={<Createtask />} />
+          <Route path="/viewalltasks" element={<Totaltask />} />    
         </Routes>
       </BrowserRouter>
     </>
