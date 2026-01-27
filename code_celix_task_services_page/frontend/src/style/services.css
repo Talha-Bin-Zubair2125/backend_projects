@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700;900&display=swap');
+
+:root {
+  --font-main: 'Open Sans', sans-serif;
+  --font-header: 'Roboto', sans-serif;
+  --bg-deep: #0f172a; /* Rich Navy Dark Blue */
+  --accent-cyan: #22d3ee;
+  --accent-blue: #3b82f6;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.services {
+  padding: 100px 4%;
+  background-color: var(--bg-deep);
+  background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0, transparent 50%), 
+                    radial-gradient(at 50% 0%, rgba(34, 211, 238, 0.1) 0, transparent 50%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-main);
+  color: var(--text-primary);
+}
+
+.services-header { text-align: center; margin-bottom: 80px; }
+
+.services-title {
+  font-family: var(--font-header);
+  font-size: 3.8rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.services-subtitle {
+  font-size: 1.2rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  letter-spacing: 1px;
+  min-height: 1.5em; /* Prevents layout jump during typing */
+}
+
+/* One-line Grid Layout */
+.services-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  perspective: 2000px;
+}
+
+.card-container {
+  flex: 1;
+  min-width: 270px;
+  max-width: 320px;
+  height: 480px;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-container.reveal { opacity: 1; transform: translateY(0); }
+
+.service-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+.card-container:hover .service-card-inner { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Icon & Title */
+.icon-main { font-size: 4.5rem; margin-bottom: 15px; }
+.service-card-title { font-family: var(--font-header); font-size: 1.5rem; font-weight: 700; text-align: center; color: #fff; }
+.mini-divider { width: 45px; height: 4px; background: var(--accent-cyan); margin: 20px 0; border-radius: 5px; }
+
+/* Description Container */
+.description-container { min-height: 90px; }
+.card-desc-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Hint - Larger & Readable */
+.flip-hint {
+  margin-top: auto;
+  font-size: 1.15rem;
+  font-family: var(--font-header);
+  color: var(--accent-cyan);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* Back Styling */
+.card-back { transform: rotateY(180deg); background: #1e293b; border-color: var(--accent-cyan); }
+.features-heading { font-family: var(--font-header); font-size: 1.3rem; margin-bottom: 20px; color: #fff; align-self: flex-start; }
+.features-list { list-style: none; width: 100%; }
+.features-list li {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+.features-list li::before { content: '✓'; color: var(--accent-cyan); margin-right: 12px; font-weight: 900; }
+
+/* Donut Visualization */
+.stat-row { display: flex; align-items: center; gap: 15px; margin: 20px 0; width: 100%; }
+.donut-wrapper { position: relative; width: 60px; height: 60px; }
+.donut-ring { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 4; }
+.donut-segment {
+  fill: none;
+  stroke: var(--accent-cyan);
+  stroke-width: 4;
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 2s ease-in-out;
+}
+.card-container.reveal .donut-segment { stroke-dashoffset: calc(100 - var(--target)); }
+.donut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: 0.85rem; }
+.stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Button Styling */
+.request-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  color: #0f172a;
+  font-weight: 800;
+  font-family: var(--font-header);
+  cursor: pointer;
+  margin-top: auto;
+  transition: 0.3s;
+}
+.request-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(34, 211, 238, 0.4); }
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .services-grid { flex-wrap: wrap; }
+  .card-container { flex: 1 1 45%; max-width: 45%; }
+}
+@media (max-width: 768px) {
+  .card-container { flex: 1 1 100%; max-width: 90%; }
+  .services-title { font-size: 2.8rem; }
+}
