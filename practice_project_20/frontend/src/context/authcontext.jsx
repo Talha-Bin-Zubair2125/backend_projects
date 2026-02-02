@@ -9,7 +9,9 @@ export const AuthProvider = ({ children }) => {
   const [users, setUsers] = useState([]); // all users (admin)
   const [tasks, setTasks] = useState([]); // for tasks
   return (
-    <AuthContext.Provider value={{ authUser, setAuthUser, users, setUsers, tasks, setTasks }}>
+    <AuthContext.Provider
+      value={{ authUser, setAuthUser, users, setUsers, tasks, setTasks }}
+    >
       {children}
     </AuthContext.Provider>
   );
