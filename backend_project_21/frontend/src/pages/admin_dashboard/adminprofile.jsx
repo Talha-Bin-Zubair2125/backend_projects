@@ -65,6 +65,24 @@ function Adminprofile() {
     navigate("/");
   };
 
+  const edit_admin_profile = () => {
+    navigate(`/editprofile/${loggedinuser._id}`, {
+      state: { returnTo: "/admindashboard" },
+    });
+  };
+
+  const edit_user = (id) =>{
+    navigate(`/editprofile/${id}`,{
+      state : {returnTo: "/admindashboard"}
+    })
+  };
+
+  const delete_user = (id) =>{
+    navigate(`/deleteprofile/${id}`,{
+      state : {returnTo: "/admindashboard"}
+    })
+  }
+
   if (isLoading) {
     return (
       <div className="admin-container">
@@ -257,10 +275,10 @@ function Adminprofile() {
                         </span>
                       </td>
                       <td>
-                        <button className="action-btn action-btn-edit">
+                        <button className="action-btn action-btn-edit" onClick={()=>edit_user(user._id)}>
                           Edit
                         </button>
-                        <button className="action-btn action-btn-delete">
+                        <button className="action-btn action-btn-delete" onClick={()=>delete_user(user._id)}>
                           Delete
                         </button>
                       </td>
@@ -279,6 +297,22 @@ function Adminprofile() {
         </div>
 
         <div className="profile-actions">
+          <button className="btn btn-secondary" onClick={edit_admin_profile}>
+            <svg
+              className="btn-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Edit Profile
+          </button>
           <button className="btn btn-danger" onClick={handleSignOut}>
             <svg
               className="btn-icon"

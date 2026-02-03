@@ -12,7 +12,7 @@ app.get('/',(req,res)=>{
 });
 
 // Importing Route
-const auth_route = require('./routes/authroutes');
+const auth_route = require('./routes/authRoutes');
 app.use('/auth',auth_route);
 // Importing DB Connection
 const connectDB = require('./db');
