@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authcontext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Edit_profile from "../../components/edit_profile";
 import "../../style/userprofile.css";
 
 function Userprofile() {
@@ -14,15 +15,18 @@ function Userprofile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        // Gets the token from local storage
         const token = localStorage.getItem("token");
+  
         if (!token) {
           setError("No token found. Please login first.");
           setTimeout(() => navigate("/"), 2000);
           return;
         }
 
+        // Sends data as a req to this path firstly it verifies the identity
         const res = await axios.get("http://localhost:3000/auth/getuser", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { authorization: `Bearer ${token}` },
         });
 
         setloggedinuser(res.data);
@@ -31,7 +35,7 @@ function Userprofile() {
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch profile");
         setTimeout(() => setError(""), 3000);
-      } finally {
+      } finally { // always runs
         setIsLoading(false);
       }
     };
@@ -45,6 +49,11 @@ function Userprofile() {
     navigate("/");
   };
 
+  const edit_author_details = () =>{
+    // We send data via id to editprofile page / state is like an invisible bag it's like carrying information from one page to another
+    navigate(`/editprofile/${loggedinuser._id}`, {state : { returnTo: "/userprofile" }});
+  }
+  
   if (isLoading) {
     return (
       <div className="profile-container">
@@ -65,7 +74,7 @@ function Userprofile() {
               {loggedinuser?.username?.charAt(0).toUpperCase() || "U"}
             </span>
           </div>
-          <h1 className="profile-title">User Dashboard</h1>
+          <h1 className="profile-title">Editor Dashboard</h1>
           <p className="profile-subtitle">
             Manage your account and preferences
           </p>
@@ -136,7 +145,7 @@ function Userprofile() {
         </div>
 
         <div className="profile-actions">
-          <button className="btn btn-secondary">Edit Profile</button>
+          <button className="btn btn-secondary" onClick={edit_author_details}>Edit Profile</button>
           <button className="btn btn-danger" onClick={handleSignOut}>
             <svg
               className="btn-icon"

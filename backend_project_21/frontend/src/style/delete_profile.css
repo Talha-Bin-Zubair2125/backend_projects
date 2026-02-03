@@ -1,0 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ──────────────────────────────────────────
+   DESIGN TOKENS — delete variant
+   ────────────────────────────────────────── */
+:root {
+  --primary: #6366f1;
+  --danger: #ef4444;
+  --danger-dark: #dc2626;
+  --danger-soft: rgba(239,68,68,.15);
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+
+  --bg-card: #ffffff;
+  --border: #e5e7eb;
+
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1);
+  --shadow-xl: 0 25px 50px -12px rgba(0,0,0,.25);
+
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* ── Reset ── */
+.ep-container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ──────────────────────────────────────────
+   PAGE CONTAINER
+   ────────────────────────────────────────── */
+.ep-container {
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+  background: var(--gradient);
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Floating orbs ── */
+.ep-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .35;
+  pointer-events: none;
+}
+.ep-orb-1 {
+  width: 340px; height: 340px;
+  background: #fca5a5;
+  top: -120px; left: -120px;
+}
+.ep-orb-2 {
+  width: 260px; height: 260px;
+  background: #c7d2fe;
+  bottom: -80px; right: -80px;
+}
+.ep-orb-3 {
+  width: 180px; height: 180px;
+  background: #fecaca;
+  top: 50%; left: 60%;
+}
+
+/* ──────────────────────────────────────────
+   WRAPPER
+   ────────────────────────────────────────── */
+.ep-wrapper {
+  max-width: 520px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .7s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ──────────────────────────────────────────
+   ALERT
+   ────────────────────────────────────────── */
+.ep-alert {
+  padding: .9rem 1.1rem;
+  border-radius: 14px;
+  font-size: .9rem;
+  font-weight: 600;
+  margin-bottom: 1.4rem;
+  box-shadow: var(--shadow-md);
+}
+
+.ep-alert-success {
+  background: #ecfdf5;
+  color: #059669;
+  border: 2px solid rgba(16,185,129,.3);
+}
+
+.ep-alert-error {
+  background: #fef2f2;
+  color: var(--danger);
+  border: 2px solid rgba(239,68,68,.35);
+}
+
+/* ──────────────────────────────────────────
+   HEADER
+   ────────────────────────────────────────── */
+.ep-header {
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+
+.ep-avatar-ring {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 1.2rem;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(135deg,#fff,rgba(255,255,255,.6));
+  box-shadow: 0 8px 30px rgba(239,68,68,.35);
+}
+
+.ep-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--danger-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ep-avatar-initials {
+  color: #fff;
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+.ep-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ep-subtitle {
+  color: rgba(255,255,255,.85);
+  font-size: 1rem;
+}
+
+/* ──────────────────────────────────────────
+   CARD
+   ────────────────────────────────────────── */
+.ep-card {
+  background: var(--bg-card);
+  border-radius: 22px;
+  padding: 2.4rem 2rem;
+  box-shadow: var(--shadow-xl);
+}
+
+/* ──────────────────────────────────────────
+   INPUTS (READ-ONLY)
+   ────────────────────────────────────────── */
+.ep-field-group {
+  margin-bottom: 1.6rem;
+}
+
+.ep-label {
+  font-size: .8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: .45rem;
+  letter-spacing: .6px;
+}
+
+.ep-input {
+  width: 100%;
+  padding: .9rem 1rem;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: #f3f4f6;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.ep-input:disabled {
+  cursor: not-allowed;
+  opacity: .8;
+}
+
+/* ──────────────────────────────────────────
+   DIVIDER
+   ────────────────────────────────────────── */
+.ep-divider {
+  height: 1px;
+  margin: 1.6rem 0;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ──────────────────────────────────────────
+   ACTION BUTTONS
+   ────────────────────────────────────────── */
+.ep-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Base */
+.ep-btn {
+  flex: 1;
+  padding: .9rem 1rem;
+  font-size: .95rem;
+  font-weight: 600;
+  border-radius: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all .25s ease;
+}
+
+/* Cancel */
+.ep-btn-cancel {
+  background: #f3f4f6;
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+}
+.ep-btn-cancel:hover {
+  background: #e5e7eb;
+  color: var(--text-primary);
+}
+
+/* DELETE BUTTON */
+.ep-btn-submit {
+  background: var(--danger-gradient);
+  color: #fff;
+  box-shadow: 0 6px 22px rgba(239,68,68,.45);
+}
+.ep-btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(239,68,68,.6);
+}
+.ep-btn-submit:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.ep-btn-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2.5px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ──────────────────────────────────────────
+   BACK LINK
+   ────────────────────────────────────────── */
+.ep-back-link {
+  margin-top: 1.6rem;
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.8);
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .25s;
+}
+.ep-back-link:hover {
+  color: #fff;
+  transform: translateX(-4px);
+}
+
+/* ──────────────────────────────────────────
+   LOADING SCREEN
+   ────────────────────────────────────────── */
+.ep-loading-screen {
+  min-height: 100vh;
+  background: var(--gradient);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.ep-loader {
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.ep-loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3.5px solid transparent;
+  border-top-color: #fff;
+  animation: spin .9s linear infinite;
+}
+
+.ep-loader-ring:nth-child(2) {
+  inset: 8px;
+  opacity: .7;
+  animation-duration: 1.1s;
+}
+
+.ep-loader-ring:nth-child(3) {
+  inset: 16px;
+  opacity: .45;
+  animation-duration: 1.3s;
+}
+
+.ep-loading-text {
+  color: rgba(255,255,255,.9);
+  font-size: 1rem;
+}
+
+/* ──────────────────────────────────────────
+   RESPONSIVE
+   ────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .ep-card { padding: 1.8rem 1.3rem; }
+  .ep-actions { flex-direction: column; }
+  .ep-title { font-size: 1.7rem; }
+}
