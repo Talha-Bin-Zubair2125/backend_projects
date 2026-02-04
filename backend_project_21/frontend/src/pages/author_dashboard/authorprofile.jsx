@@ -26,7 +26,7 @@ function Authorprofile() {
   };
 
   const stats = getPostStats();
-  
+
   // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,7 +55,10 @@ function Authorprofile() {
   useEffect(() => {
     const fetch_tasks = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/post/getposts");
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:3000/post/getposts", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setposts(res.data);
         setResponseMsg("Dashboard loaded successfully");
         setTimeout(() => setResponseMsg(""), 3000);

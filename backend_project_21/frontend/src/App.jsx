@@ -6,6 +6,8 @@ import Authorprofile from "./pages/author_dashboard/authorprofile";
 import Edit_profile from "./components/edit_profile";
 import Delete_profile_admin from "./components/delete_profile_admin";
 import Create_post from "./components/create_post";
+import View_drafts from "./components/view_drafts";
+import Edit_draft from "./components/edit_draft";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
           <Route path="/editprofile/:id" element={<Edit_profile />} />
           <Route path="/deleteprofile/:id" element={<Delete_profile_admin />} />
           <Route path="/createpost" element={<Create_post />} />
+          <Route path="/drafts" element={<View_drafts />} />
+          <Route path="/editdraft/:id" element={<Edit_draft />} />
         </Routes>
       </BrowserRouter>
     </>
