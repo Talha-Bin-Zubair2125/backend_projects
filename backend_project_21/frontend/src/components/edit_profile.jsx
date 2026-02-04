@@ -19,7 +19,7 @@ function Edit_profile() {
   const [showPassword, setShowPassword] = useState(false);
 
   const returnTo = location.state?.returnTo;
-  console.log(returnTo);
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
