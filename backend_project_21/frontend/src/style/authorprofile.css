@@ -11,6 +11,7 @@
   --error: #ef4444;
   --warning: #f59e0b;
   --danger: #dc2626;
+  --info: #3b82f6;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --bg-primary: #f9fafb;
@@ -120,6 +121,28 @@ body {
   padding: 4px;
   background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,.5) 100%);
   box-shadow: 0 8px 32px rgba(102, 126, 234, 0.35);
+  position: relative;
+}
+
+.avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  animation: rotate 3s linear infinite;
+}
+
+.avatar-ring:hover::before {
+  opacity: 0.5;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .profile-avatar {
@@ -130,6 +153,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.avatar-ring:hover .profile-avatar {
+  transform: scale(1.05);
 }
 
 .avatar-text {
@@ -145,6 +173,10 @@ body {
   color: white;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .author-subtitle {
@@ -197,7 +229,7 @@ body {
    ────────────────────────────────────────── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.25rem;
   margin-bottom: 1.75rem;
   animation: scaleIn 0.6s ease-out 0.1s both;
@@ -218,6 +250,24 @@ body {
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(99, 102, 241, 0.03) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-card:hover {
@@ -234,6 +284,12 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .stat-icon svg {
@@ -251,7 +307,21 @@ body {
   color: var(--warning);
 }
 
-.stat-content { flex: 1; }
+.stat-icon-review {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info);
+}
+
+.stat-icon-published {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.stat-content { 
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
 
 .stat-label {
   font-size: 0.82rem;
@@ -280,6 +350,20 @@ body {
   box-shadow: var(--shadow-xl);
   margin-bottom: 1.75rem;
   border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card::before,
+.quick-actions-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .profile-card  { animation: scaleIn 0.6s ease-out 0.2s both; }
@@ -296,6 +380,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  position: relative;
+  z-index: 1;
 }
 
 .card-title-icon {
@@ -303,6 +389,12 @@ body {
   height: 22px;
   color: var(--primary);
   flex-shrink: 0;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 /* ──────────────────────────────────────────
@@ -312,6 +404,8 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .info-item {
@@ -322,12 +416,31 @@ body {
   border-radius: 12px;
   background: #fafafa;
   border: 1px solid #f0f0f0;
-  transition: background 0.25s, border-color 0.25s;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--primary);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.info-item:hover::before {
+  transform: scaleY(1);
 }
 
 .info-item:hover {
   background: #f3f4ff;
-  border-color: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(4px);
 }
 
 /* Label with small icon */
@@ -353,6 +466,7 @@ body {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-primary);
+  word-break: break-word;
 }
 
 /* Badges */
@@ -366,6 +480,12 @@ body {
   font-weight: 600;
   text-transform: capitalize;
   width: fit-content;
+  transition: transform 0.2s ease;
+}
+
+.role-badge:hover,
+.status-badge:hover {
+  transform: scale(1.05);
 }
 
 .role-author {
@@ -387,6 +507,8 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .action-card {
@@ -396,11 +518,31 @@ body {
   padding: 1.75rem 1.25rem;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.action-card:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .action-card:hover {
@@ -417,6 +559,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.1) rotate(-5deg);
 }
 
 .action-icon svg {
@@ -444,6 +593,8 @@ body {
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .action-description {
@@ -451,6 +602,8 @@ body {
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
+  position: relative;
+  z-index: 1;
 }
 
 /* ──────────────────────────────────────────
@@ -470,22 +623,44 @@ body {
   border: none;
   border-radius: 14px;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: all 0.25s ease;
   font-family: 'Poppins', sans-serif;
   display: flex;
   align-items: center;
   gap: 0.55rem;
   box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn:active {
-  transform: translateY(0) !important;
+  transform: translateY(0) scale(0.98) !important;
 }
 
 .btn-icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Edit Profile — secondary */
@@ -503,6 +678,11 @@ body {
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
 }
 
+.btn-secondary > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Sign Out — danger */
 .btn-danger {
   background: var(--danger);
@@ -513,6 +693,11 @@ body {
   background: #b91c1c;
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.btn-danger > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ──────────────────────────────────────────
@@ -544,6 +729,12 @@ body {
 .loading-spinner p {
   font-size: 1.125rem;
   font-weight: 500;
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 /* ──────────────────────────────────────────

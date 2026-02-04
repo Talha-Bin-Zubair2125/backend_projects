@@ -6,11 +6,27 @@ import "../../style/authorprofile.css";
 
 function Authorprofile() {
   const { loggedinuser, setloggedinuser } = useContext(AuthContext);
+  const { post, setposts } = useContext(AuthContext);
   const [responseMsg, setResponseMsg] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Calculate post statistics
+  const getPostStats = () => {
+    if (!post || !Array.isArray(post)) {
+      return { total: 0, drafts: 0, review: 0, published: 0 };
+    }
+    return {
+      total: post.length,
+      drafts: post.filter((p) => p.submit_type === "Draft").length,
+      review: post.filter((p) => p.submit_type === "Review").length,
+      published: post.filter((p) => p.status === "Approved").length,
+    };
+  };
+
+  const stats = getPostStats();
+  
   // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
@@ -21,14 +37,10 @@ function Authorprofile() {
           setTimeout(() => navigate("/"), 2000);
           return;
         }
-
         const res = await axios.get("http://localhost:3000/auth/getuser", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setloggedinuser(res.data);
-        setResponseMsg("Profile loaded successfully");
-        setTimeout(() => setResponseMsg(""), 3000);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch profile");
         setTimeout(() => setError(""), 3000);
@@ -39,6 +51,22 @@ function Authorprofile() {
     fetchProfile();
   }, [setloggedinuser, navigate]);
 
+  // Fetch posts
+  useEffect(() => {
+    const fetch_tasks = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/post/getposts");
+        setposts(res.data);
+        setResponseMsg("Dashboard loaded successfully");
+        setTimeout(() => setResponseMsg(""), 3000);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch posts");
+        setTimeout(() => setError(""), 3000);
+      }
+    };
+    fetch_tasks();
+  }, [setposts]);
+
   const handleSignOut = () => {
     localStorage.removeItem("token");
     setloggedinuser(null);
@@ -47,6 +75,24 @@ function Authorprofile() {
 
   const edit_author_profile = () => {
     navigate(`/editprofile/${loggedinuser._id}`, {
+      state: { returnTo: "/authordashboard" },
+    });
+  };
+
+  const create_post = () => {
+    navigate("/createpost", {
+      state: { returnTo: "/authordashboard" },
+    });
+  };
+
+  const view_drafts = () => {
+    navigate("/drafts", {
+      state: { returnTo: "/authordashboard" },
+    });
+  };
+
+  const view_published = () => {
+    navigate("/published", {
       state: { returnTo: "/authordashboard" },
     });
   };
@@ -135,7 +181,7 @@ function Authorprofile() {
             </div>
             <div className="stat-content">
               <p className="stat-label">Total Posts</p>
-              <p className="stat-value">0</p>
+              <p className="stat-value">{stats.total}</p>
             </div>
           </div>
 
@@ -152,7 +198,24 @@ function Authorprofile() {
             </div>
             <div className="stat-content">
               <p className="stat-label">Drafts</p>
-              <p className="stat-value">0</p>
+              <p className="stat-value">{stats.drafts}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-review">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div className="stat-content">
+              <p className="stat-label">Pending Review</p>
+              <p className="stat-value">{stats.review}</p>
             </div>
           </div>
         </div>
@@ -278,7 +341,7 @@ function Authorprofile() {
             Quick Actions
           </h2>
           <div className="actions-grid">
-            <button className="action-card">
+            <button className="action-card" onClick={create_post}>
               <div className="action-icon action-icon-new">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -295,7 +358,7 @@ function Authorprofile() {
               </p>
             </button>
 
-            <button className="action-card">
+            <button className="action-card" onClick={view_drafts}>
               <div className="action-icon action-icon-drafts">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -312,7 +375,7 @@ function Authorprofile() {
               </p>
             </button>
 
-            <button className="action-card">
+            <button className="action-card" onClick={view_published}>
               <div className="action-icon action-icon-published">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

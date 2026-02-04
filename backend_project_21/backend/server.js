@@ -14,6 +14,8 @@ app.get('/',(req,res)=>{
 // Importing Route
 const auth_route = require('./routes/authRoutes');
 app.use('/auth',auth_route);
+const post_route = require('./routes/postRoutes');
+app.use('/post',post_route);
 // Importing DB Connection
 const connectDB = require('./db');
 connectDB();
