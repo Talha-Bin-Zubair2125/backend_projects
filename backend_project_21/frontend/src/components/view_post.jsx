@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../context/authcontext";
 import { useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -35,10 +35,10 @@ function View_post() {
     fetchPost();
   }, [id]);
 
-
-  const backToProfile = () => {
+  // useCallback prevents re-creating this function on every render
+  const backToProfile = useCallback(() => {
     navigate("/authordashboard");
-  };
+  }, [navigate]);
 
   if (isLoading) {
     return (
@@ -156,7 +156,7 @@ function View_post() {
               <h2 className="post-title">
                 {currentPost.post_topic || "Untitled Post"}
               </h2>
-              <span className="status-badge status-pending">
+              <span className="post-status-badge published">
                 {currentPost.submit_type}
               </span>
             </div>
