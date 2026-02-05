@@ -1,4 +1,5 @@
 const express = require("express");
+const {adminOnly} = require('../middlewares/admin_middleware')
 const router = express.Router();
 const {
   login_user,
