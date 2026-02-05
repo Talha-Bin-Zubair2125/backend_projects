@@ -8,8 +8,11 @@ import Delete_profile_admin from "./components/delete_profile_admin";
 import Create_post from "./components/create_post";
 import View_drafts from "./components/view_drafts";
 import Edit_draft from "./components/edit_draft";
+import View_published from "./components/view_published";
+import Review_post from "./components/review_post";
+import View_published_author from "./components/view_published_author";
+import View_post from "./components/view_post";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
 function App() {
   return (
     <>
@@ -25,6 +28,10 @@ function App() {
           <Route path="/createpost" element={<Create_post />} />
           <Route path="/drafts" element={<View_drafts />} />
           <Route path="/editdraft/:id" element={<Edit_draft />} />
+          <Route path="/view_published" element={<View_published />} />
+          <Route path="/view_published_author" element={<View_published_author />} />
+          <Route path="/viewpost/:id" element={<View_post />} />
+          <Route path="/reviewpost/:id" element={<Review_post />} />
         </Routes>
       </BrowserRouter>
     </>

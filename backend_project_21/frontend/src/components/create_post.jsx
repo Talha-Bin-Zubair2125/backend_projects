@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { AuthContext } from "../context/authcontext";
 import { useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -7,7 +7,8 @@ import "../style/createpost.css";
 
 function Create_post() {
   // States
-  const { post, setposts } = useContext(AuthContext);
+  const { loggedinuser, setloggedinuser, post, setposts } =
+    useContext(AuthContext);
   const [post_topic, set_post_topic] = useState("");
   const [post_content, set_post_content] = useState("");
   const [post_type, set_post_type] = useState("");
@@ -19,8 +20,32 @@ function Create_post() {
 
   const returnTo = location.state?.returnTo || "/authordashboard";
 
+  // Fetch profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("No token found. Please login first.");
+          setTimeout(() => navigate("/"), 2000);
+          return;
+        }
+        const res = await axios.get("http://localhost:3000/auth/getuser", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setloggedinuser(res.data.username);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch profile");
+        setTimeout(() => setError(""), 3000);
+      } 
+    };
+    fetchProfile();
+  }, [setloggedinuser, navigate]);
+
+  
   const submit_post_for_review = async () => {
     const token = localStorage.getItem("token");
+
 
     const data = {
       post_topic,
@@ -28,6 +53,7 @@ function Create_post() {
       status,
       submit_type: submittype[0],
       post_type,
+      author_name : loggedinuser,
     };
 
     try {
