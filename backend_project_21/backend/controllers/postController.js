@@ -1,7 +1,14 @@
 const post_model = require("../models/post");
 
 const create_post = async (req, res) => {
-  const { post_topic, post_content, status, submit_type, post_type } = req.body;
+  const {
+    post_topic,
+    post_content,
+    status,
+    submit_type,
+    post_type,
+    author_name,
+  } = req.body;
 
   try {
     const new_post = new post_model({
@@ -10,12 +17,14 @@ const create_post = async (req, res) => {
       status,
       submit_type,
       post_type,
+      author_name,
     });
 
-    await new_post.save();
     if (submit_type === "Draft") {
+      await new_post.save();
       res.status(201).json({ message: "Draft Saved Successfully!" });
     } else if (submit_type === "Review") {
+      await new_post.save();
       res.status(201).json({ message: "Post Saved Successfully for Review!" });
     }
   } catch (err) {
@@ -48,7 +57,18 @@ const delete_post = async (req, res) => {
 const get_posts = async (req, res) => {
   try {
     const data = await post_model.find({});
-    res.status(201).json(data);
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const get_posts_by_id = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const data = await post_model.findById(id);
+    res.status(200).json(data);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err.message });
@@ -65,7 +85,6 @@ const edit_draft = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: "Draft not found" });
     }
-
     // Update the draft
     post.post_topic = post_topic || post.post_topic;
     post.post_content = post_content || post.post_content;
@@ -91,4 +110,65 @@ const edit_draft = async (req, res) => {
   }
 };
 
-module.exports = { create_post, edit_post, delete_post, get_posts, edit_draft };
+const approve_post = async (req, res) => {
+  const id = req.params.id;
+
+  const { status, submit_type } = req.body;
+
+  try {
+    const post = await post_model.findById(id);
+    post.status = status;
+    post.submit_type = submit_type;
+    await post.save();
+    res.status(200).json({ message: "post updated successfully", post });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const reject_post = async (req, res) => {
+  const id = req.params.id;
+
+  const { status, submit_type } = req.body;
+
+  try {
+    const post = await post_model.findById(id);
+    post.status = status;
+    post.submit_type = submit_type;
+    await post.save();
+    res.status(200).json({ message: "post updated successfully", post });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const review_post = async (req, res) => {
+  const id = req.params.id;
+
+  const { status, submit_type } = req.body;
+
+  try {
+    const post = await post_model.findById(id);
+    post.status = status;
+    post.submit_type = submit_type;
+    await post.save();
+    res.status(200).json({ message: "post updated successfully", post });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  create_post,
+  edit_post,
+  delete_post,
+  get_posts,
+  edit_draft,
+  get_posts_by_id,
+  reject_post,
+  review_post,
+  approve_post,
+};
