@@ -31,6 +31,7 @@ function View_drafts() {
         });
 
         setposts(filteredPosts);
+     
         setResponseMsg("Drafts loaded successfully");
         setTimeout(() => setResponseMsg(""), 3000);
       } catch (err) {
