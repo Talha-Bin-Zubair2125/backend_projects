@@ -3,6 +3,7 @@ import { AuthContext } from "../context/authcontext";
 import { useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import "../style/view_published_author.css";
 
 function View_published_author() {
   const { post, setposts } = useContext(AuthContext);

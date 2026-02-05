@@ -11,8 +11,8 @@ function Authorprofile() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Calculate post statistics with memoization
-  const getPostStats = useCallback(() => {
+  // Calculate post statistics
+  const getPostStats = () => {
     if (!post || !Array.isArray(post)) {
       return { total: 0, drafts: 0, review: 0, published: 0 };
     }
@@ -22,16 +22,9 @@ function Authorprofile() {
       review: post.filter((p) => p.submit_type === "Review").length,
       published: post.filter((p) => p.status === "Published").length,
     };
-  }, [post]);
+  };
 
   const stats = getPostStats();
-
-  // Show temporary messages
-  const showMessage = useCallback((setter, message, duration = 3000) => {
-    setter(message);
-    const timer = setTimeout(() => setter(""), duration);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Fetch profile
   useEffect(() => {
@@ -43,82 +36,72 @@ function Authorprofile() {
           setTimeout(() => navigate("/"), 2000);
           return;
         }
-
         const res = await axios.get("http://localhost:3000/auth/getuser", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setloggedinuser(res.data);
       } catch (err) {
-        const errorMessage = err.response?.data?.message || "Failed to fetch profile";
-        showMessage(setError, errorMessage);
-        
-        // Redirect to login if unauthorized
-        if (err.response?.status === 401) {
-          setTimeout(() => navigate("/"), 2000);
-        }
+        setError(err.response?.data?.message || "Failed to fetch profile");
+        setTimeout(() => setError(""), 3000);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchProfile();
-  }, [setloggedinuser, navigate, showMessage]);
+  }, [setloggedinuser, navigate]);
 
   // Fetch posts
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetch_tasks = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
-
         const res = await axios.get("http://localhost:3000/post/getposts", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setposts(res.data);
-        showMessage(setResponseMsg, "Dashboard loaded successfully");
+        setResponseMsg("Dashboard loaded successfully");
+        setTimeout(() => setResponseMsg(""), 3000);
       } catch (err) {
-        const errorMessage = err.response?.data?.message || "Failed to fetch posts";
-        showMessage(setError, errorMessage);
+        setError(err.response?.data?.message || "Failed to fetch posts");
+        setTimeout(() => setError(""), 3000);
       }
     };
+    fetch_tasks();
+  }, [setposts]);
 
-    fetchPosts();
-  }, [setposts, showMessage]);
-
-  // Handle sign out
+  // useCallback is used here to prevent unnecessary re-renders
+  // When you pass functions as props to child components or use them in dependency arrays,
+  // useCallback ensures the function reference stays the same unless dependencies change
   const handleSignOut = useCallback(() => {
     localStorage.removeItem("token");
     setloggedinuser(null);
-    setposts([]);
     navigate("/");
-  }, [navigate, setloggedinuser, setposts]);
+  }, [navigate, setloggedinuser]);
 
-  // Navigation handlers
-  const editAuthorProfile = useCallback(() => {
+  const edit_author_profile = useCallback(() => {
     navigate(`/editprofile/${loggedinuser._id}`, {
       state: { returnTo: "/authordashboard" },
     });
   }, [navigate, loggedinuser]);
 
-  const createPost = useCallback(() => {
+  const create_post = useCallback(() => {
     navigate("/createpost", {
       state: { returnTo: "/authordashboard" },
     });
   }, [navigate]);
 
-  const viewDrafts = useCallback(() => {
+  const view_drafts = useCallback(() => {
     navigate("/drafts", {
       state: { returnTo: "/authordashboard" },
     });
   }, [navigate]);
 
-  const viewPublished = useCallback(() => {
-    navigate("/view_published_author", {
+  const view_published = useCallback(() => {
+    navigate(`/view_published_author`, {
       state: { returnTo: "/authordashboard" },
     });
   }, [navigate]);
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="author-container">
@@ -138,7 +121,6 @@ function Authorprofile() {
       <div className="orb orb-3"></div>
 
       <div className="author-wrapper">
-        {/* Header */}
         <div className="author-header">
           <div className="avatar-ring">
             <div className="profile-avatar">
@@ -151,15 +133,13 @@ function Authorprofile() {
           <p className="author-subtitle">Create and manage your content</p>
         </div>
 
-        {/* Success Message */}
         {responseMsg && (
-          <div className="alert alert-success" role="alert">
+          <div className="alert alert-success">
             <svg
               className="alert-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -172,15 +152,13 @@ function Authorprofile() {
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
-          <div className="alert alert-error" role="alert">
+          <div className="alert alert-error">
             <svg
               className="alert-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -193,11 +171,11 @@ function Authorprofile() {
           </div>
         )}
 
-        {/* Stats Grid */}
+        {/* Stats */}
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon stat-icon-posts">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -214,7 +192,7 @@ function Authorprofile() {
 
           <div className="stat-card">
             <div className="stat-icon stat-icon-drafts">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -231,7 +209,7 @@ function Authorprofile() {
 
           <div className="stat-card">
             <div className="stat-icon stat-icon-review">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -248,7 +226,7 @@ function Authorprofile() {
 
           <div className="stat-card">
             <div className="stat-icon stat-icon-published">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -264,7 +242,7 @@ function Authorprofile() {
           </div>
         </div>
 
-        {/* Profile Info Card */}
+        {/* Profile Info */}
         <div className="profile-card">
           <h2 className="card-title">
             <svg
@@ -272,7 +250,6 @@ function Authorprofile() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -291,7 +268,6 @@ function Authorprofile() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -313,7 +289,6 @@ function Authorprofile() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -333,7 +308,6 @@ function Authorprofile() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -355,7 +329,6 @@ function Authorprofile() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -371,7 +344,7 @@ function Authorprofile() {
           </div>
         </div>
 
-        {/* Quick Actions Card */}
+        {/* Quick Actions */}
         <div className="quick-actions-card">
           <h2 className="card-title">
             <svg
@@ -379,7 +352,6 @@ function Authorprofile() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -391,9 +363,9 @@ function Authorprofile() {
             Quick Actions
           </h2>
           <div className="actions-grid">
-            <button className="action-card" onClick={createPost} aria-label="Create new post">
+            <button className="action-card" onClick={create_post}>
               <div className="action-icon action-icon-new">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -408,9 +380,9 @@ function Authorprofile() {
               </p>
             </button>
 
-            <button className="action-card" onClick={viewDrafts} aria-label="View drafts">
+            <button className="action-card" onClick={view_drafts}>
               <div className="action-icon action-icon-drafts">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -425,9 +397,9 @@ function Authorprofile() {
               </p>
             </button>
 
-            <button className="action-card" onClick={viewPublished} aria-label="View published posts">
+            <button className="action-card" onClick={view_published}>
               <div className="action-icon action-icon-published">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -444,15 +416,14 @@ function Authorprofile() {
           </div>
         </div>
 
-        {/* Bottom Action Buttons */}
+        {/* Bottom Buttons */}
         <div className="profile-actions">
-          <button className="btn btn-secondary" onClick={editAuthorProfile}>
+          <button className="btn btn-secondary" onClick={edit_author_profile}>
             <svg
               className="btn-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -470,7 +441,6 @@ function Authorprofile() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
