@@ -29,7 +29,8 @@ function View_drafts() {
           const authorId = typeof data.author === 'object' ? data.author?._id : data.author;
           return data.submit_type === "Draft" && authorId === loggedinuser?._id;
         });
-
+        console.log();
+        
         setposts(filteredPosts);
      
         setResponseMsg("Drafts loaded successfully");
