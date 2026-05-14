@@ -8,8 +8,7 @@ const addNoteSchema = JOI.object({
   content: JOI.string().required(),
 });
 
-// Add Note Route
-
+// Add Note
 const addNote = async (req, res) => {
   const { error } = addNoteSchema.validate(req.body);
   if (error) {
@@ -29,8 +28,7 @@ const addNote = async (req, res) => {
   }
 };
 
-// Get Notes Route
-
+// Get Notes by User ID
 const getNotes = async (req, res) => {
   const userId = req.params.userId;
   try {
@@ -42,10 +40,9 @@ const getNotes = async (req, res) => {
   }
 };
 
-// Get Notes by Note ID Route (for updating a specific note)
+// Get Note by Note ID
 const getNoteById = async (req, res) => {
   const noteId = req.params.id;
-  console.log("Fetching note with ID:", noteId); // Debug log
   try {
     const note = await Notes_Model.findById(noteId);
     if (!note) {
@@ -56,9 +53,9 @@ const getNoteById = async (req, res) => {
     console.error("Error fetching note:", error);
     res.status(500).json({ message: "Error fetching note", error });
   }
-}
+};
 
-// Update Note Route
+// Update Note
 const updateNote = async (req, res) => {
   const noteId = req.params.id;
   const { title, content } = req.body;
@@ -70,12 +67,27 @@ const updateNote = async (req, res) => {
     );
     if (!updatedNote) {
       return res.status(404).json({ message: "Note not found" });
-    } 
+    }
     res.status(200).json({ message: "Note updated successfully", note: updatedNote });
-  } catch (error) {   
+  } catch (error) {
     console.error("Error updating note:", error);
     res.status(500).json({ message: "Error updating note", error });
   }
 };
 
-module.exports = { addNote, getNotes, getNoteById, updateNote };
+// Delete Note 
+const deleteNote = async (req, res) => {
+  const noteId = req.params.id;
+  try {
+    const deletedNote = await Notes_Model.findByIdAndDelete(noteId);
+    if (!deletedNote) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+    res.status(200).json({ message: "Note deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    res.status(500).json({ message: "Error deleting note", error });
+  }
+};
+
+module.exports = { addNote, getNotes, getNoteById, updateNote, deleteNote };

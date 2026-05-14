@@ -4,6 +4,7 @@ const cors = require("cors");
 const ConnectDB = require("./db");
 const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Server Creation
 app.listen(PORT, () => {

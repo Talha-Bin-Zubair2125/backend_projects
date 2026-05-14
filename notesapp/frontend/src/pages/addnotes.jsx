@@ -4,16 +4,15 @@ import { useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styling/addnotes.css";
+import useAI from "../../hooks/useAI";
 
 function Addnotes() {
-  // states
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [userPrompt, setUserPrompt] = useState("");
 
-  // navigate
   const navigate = useNavigate();
-
-  // for storing user context that helps us to store and get notes of the user
+  const { generateNote, loading } = useAI();
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -21,9 +20,7 @@ function Addnotes() {
       try {
         const response = await axios.get(
           "http://localhost:3000/api/auth/profile",
-          {
-            withCredentials: true,
-          },
+          { withCredentials: true },
         );
         setUser(response.data);
       } catch (error) {
@@ -36,17 +33,23 @@ function Addnotes() {
     fetchProfile();
   }, []);
 
+  const handleGenerate = async () => {
+    const result = await generateNote(userPrompt, title, content);
+    if (result) {
+      setTitle(result.title);
+      setContent(result.content);
+      setUserPrompt(""); // clear prompt after generation
+    }
+  };
+
   const addNotes = async (e) => {
     e.preventDefault();
     const data = { user_id: user?._id, title, content };
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/notes/add",
-        data,
-        { withCredentials: true },
-      );
+      await axios.post("http://localhost:3000/api/notes/add", data, {
+        withCredentials: true,
+      });
       navigate("/profile");
-      
     } catch (error) {
       console.error(
         "Failed to add note:",
@@ -81,6 +84,17 @@ function Addnotes() {
           </div>
 
           <form className="addnotes-form" onSubmit={addNotes}>
+            {/* AI Prompt Input */}
+            <div className="addnotes-field">
+              <label>Ask AI (optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. write a note about React hooks..."
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
+              />
+            </div>
+
             <div className="addnotes-field">
               <label>Title</label>
               <input
@@ -103,9 +117,20 @@ function Addnotes() {
             </div>
 
             <div className="addnotes-btn-row">
+              {/* AI Button */}
+              <button
+                type="button"
+                className="btn-addnote-ai"
+                onClick={handleGenerate}
+                disabled={loading}
+              >
+                {loading ? "Thinking..." : "✨ Generate with AI"}
+              </button>
+
               <button type="submit" className="btn-addnote-submit">
                 Add Note
               </button>
+
               <button
                 type="button"
                 className="btn-addnote-back"

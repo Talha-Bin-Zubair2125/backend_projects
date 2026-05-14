@@ -1,12 +1,12 @@
 const express = require("express");
 const Router = express.Router();
-const {protect} = require("../middlewares/authMiddleware");
+const { protect } = require("../middlewares/authMiddleware");
 const {
   register,
   login,
   getProfile,
   Logout,
-    updateProfile,
+  updateProfile,
 } = require("../controllers/authController");
 
 // Routes

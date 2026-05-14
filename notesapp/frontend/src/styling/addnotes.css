@@ -306,6 +306,15 @@
   box-shadow: none;
 }
 
+.btn-addnote-ai {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .addnotes-hero h1 { font-size: 26px; }

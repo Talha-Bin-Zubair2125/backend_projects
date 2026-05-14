@@ -272,6 +272,15 @@
   transform: translateY(-1px);
 }
 
+.btn-updatenote-ai {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
 .btn-updatenote-back:active { transform: scale(0.97); }
 
 @media (max-width: 768px) {
