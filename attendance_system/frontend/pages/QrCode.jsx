@@ -4,7 +4,7 @@ import axios from "axios";
 import "../stylings/QRCode.css";
 
 function QRCode() {
-  const [qrImage, setQrImage] = useState(null); // ✅ null instead of ""
+  const [qrImage, setQrImage] = useState(null); 
   const [countdown, setCountdown] = useState(15);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ function QRCode() {
         {},
         { withCredentials: true }
       );
-      setQrImage(response.data.qrImage); // base64 image ✅
+      setQrImage(response.data.qrImage); // base64 image 
     } catch (error) {
       console.error("Error generating QR:", error);
     } finally {
@@ -45,7 +45,7 @@ function QRCode() {
     }
   };
 
-  // manual refresh — generates new QR + resets timer ✅
+  // manual refresh — generates new QR + resets timer 
   const handleRefresh = async () => {
     await generateNewQR();
     setCountdown(15); // reset timer on manual refresh
