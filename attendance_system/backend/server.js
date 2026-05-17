@@ -4,6 +4,9 @@ require("dotenv").config();
 const ConnectDB = require("./db");
 const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
+const qrRoutes = require("./routes/qrRoutes");
+const deductionRoutes = require("./routes/deductionRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const cors = require("cors");
 
 const app = express();
@@ -18,6 +21,9 @@ ConnectDB();
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", employeeRoutes);
+app.use("/api/admin", qrRoutes);
+app.use("/api/admin", deductionRoutes);
+app.use("/api/admin", attendanceRoutes);
 
 // Create a simple route to test the server
 app.get("/", (req, res) => {

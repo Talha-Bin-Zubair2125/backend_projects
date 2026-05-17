@@ -10,7 +10,6 @@ function ProfileScreen() {
   const location = useLocation();
   const [totalEmployees, setTotalEmployees] = useState(0);
 
-  // fetch total employees count for dashboard stat
   useEffect(() => {
     const fetchEmployeeCount = async () => {
       try {
@@ -41,7 +40,6 @@ function ProfileScreen() {
     }
   };
 
-  // helper to check active link
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -62,14 +60,13 @@ function ProfileScreen() {
             <span className="sidebar-icon">⊞</span> Dashboard
           </button>
 
-          {/* Employees section with sub links */}
+          {/* ── Employees ── */}
           <button
             className={`sidebar-link ${isActive("/viewemployees") || isActive("/addemployee") ? "active" : ""}`}
             onClick={() => navigate("/viewemployees")}
           >
             <span className="sidebar-icon">👥</span> Employees
           </button>
-
           <div className="sidebar-sub">
             <button
               className={`sidebar-sublink ${isActive("/viewemployees") ? "active" : ""}`}
@@ -108,12 +105,28 @@ function ProfileScreen() {
         </nav>
 
         <div className="sidebar-bottom">
+          {/* ── Settings with sub links ── */}
           <button
-            className={`sidebar-link ${isActive("/updateprofile") ? "active" : ""}`}
+            className={`sidebar-link ${isActive("/updateprofile") || isActive("/deductionsettings") ? "active" : ""}`}
             onClick={() => navigate("/updateprofile")}
           >
             <span className="sidebar-icon">⚙</span> Settings
           </button>
+          <div className="sidebar-sub">
+            <button
+              className={`sidebar-sublink ${isActive("/updateprofile") ? "active" : ""}`}
+              onClick={() => navigate("/updateprofile")}
+            >
+              Update Profile
+            </button>
+            <button
+              className={`sidebar-sublink ${isActive("/deductionsettings") ? "active" : ""}`}
+              onClick={() => navigate("/deductionsettings")}
+            >
+              Deduction Rules
+            </button>
+          </div>
+
           <button className="sidebar-logout" onClick={handleLogout}>
             <span className="sidebar-icon">→</span> Logout
           </button>
@@ -191,8 +204,12 @@ function ProfileScreen() {
               <p>Generate Report</p>
             </button>
             <button className="action-card" onClick={() => navigate("/updateprofile")}>
-              <span>⚙</span>
-              <p>Settings</p>
+              <span>👤</span>
+              <p>Update Profile</p>
+            </button>
+            <button className="action-card" onClick={() => navigate("/deductionsettings")}>
+              <span>💰</span>
+              <p>Deduction Rules</p>
             </button>
           </div>
         </div>
