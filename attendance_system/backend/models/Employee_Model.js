@@ -31,9 +31,9 @@ const employeeSchema = new moongoose.Schema({
     type: String,
     required: true,
   },
+  EmployeePassword: { type: String, required: true }, 
 });
 
 // Creating a model for employee authentication
 const Employee = moongoose.model("Employee", employeeSchema);
 module.exports = Employee;
-

@@ -12,6 +12,9 @@ function AddEmployeeRecords() {
   const [EmployeeSalary, setEmployeeSalary] = useState("");
   const [EmployeeJoiningDate, setEmployeeJoiningDate] = useState("");
   const [EmployeeRole, setEmployeeRole] = useState("");
+  const [EmployeePassword, setEmployeePassword] = useState("employee@123");
+  const [ConfirmPassword, setConfirmPassword] = useState("employee@123");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +23,18 @@ function AddEmployeeRecords() {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    // validate passwords match
+    if (EmployeePassword !== ConfirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (EmployeePassword.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await axios.post(
@@ -32,8 +47,9 @@ function AddEmployeeRecords() {
           EmployeeSalary,
           EmployeeJoiningDate,
           EmployeeRole,
+          EmployeePassword,
         },
-        { withCredentials: true },
+        { withCredentials: true }
       );
       setSuccess("Employee added successfully!");
       // clear form
@@ -44,6 +60,8 @@ function AddEmployeeRecords() {
       setEmployeeSalary("");
       setEmployeeJoiningDate("");
       setEmployeeRole("");
+      setEmployeePassword("employee@123");
+      setConfirmPassword("employee@123");
     } catch (error) {
       setError(error.response?.data?.message || "Failed to add employee");
     } finally {
@@ -51,8 +69,12 @@ function AddEmployeeRecords() {
     }
   };
 
+  // check if passwords match for indicator
+  const passwordMatch = EmployeePassword === ConfirmPassword;
+
   return (
     <div className="addemployee-wrapper">
+
       {/* ── Back Button ── */}
       <button className="addemployee-back" onClick={() => navigate("/profile")}>
         ← Back to Dashboard
@@ -83,6 +105,7 @@ function AddEmployeeRecords() {
 
         <form className="addemployee-form" onSubmit={EmployeeInfo}>
           <div className="addemployee-grid">
+
             <div className="addemployee-field">
               <label>Employee ID</label>
               <input
@@ -163,6 +186,67 @@ function AddEmployeeRecords() {
                 <option value="Accounts Officer">Accounts Officer</option>
               </select>
             </div>
+
+            {/* ── Password Section ── */}
+            <div className="addemployee-field full-width">
+              <div className="password-section-header">
+                <label>🔑 Login Credentials</label>
+                <span className="password-hint">
+                  Employee will use these to login on mobile app
+                </span>
+              </div>
+            </div>
+
+            <div className="addemployee-field">
+              <label>Default Password</label>
+              <div className="password-input-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Set employee password"
+                  value={EmployeePassword}
+                  onChange={(e) => setEmployeePassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙈" : "👁"}
+                </button>
+              </div>
+            </div>
+
+            <div className="addemployee-field">
+              <label>Confirm Password</label>
+              <div className="password-input-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm password"
+                  value={ConfirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={ConfirmPassword && !passwordMatch ? "input-error" : ""}
+                />
+                {ConfirmPassword && (
+                  <span className="password-match-indicator">
+                    {passwordMatch ? "✓" : "✗"}
+                  </span>
+                )}
+              </div>
+              {ConfirmPassword && !passwordMatch && (
+                <p className="field-error">Passwords do not match</p>
+              )}
+            </div>
+
+            {/* ── Default Password Info ── */}
+            <div className="addemployee-field full-width">
+              <div className="default-password-info">
+                <span>ℹ</span>
+                <p>Default password is <strong>employee@123</strong> — employee can change it after first login</p>
+              </div>
+            </div>
+
           </div>
 
           <div className="addemployee-btn-row">
@@ -173,7 +257,11 @@ function AddEmployeeRecords() {
             >
               Cancel
             </button>
-            <button type="submit" className="btn-submit" disabled={loading}>
+            <button
+              type="submit"
+              className="btn-submit"
+              disabled={loading || !passwordMatch}
+            >
               {loading ? (
                 <span className="addemployee-spinner"></span>
               ) : (

@@ -6,15 +6,33 @@ import "../stylings/ViewAllEmployees.css";
 function ViewAllEmployees() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
+  const [searching, setSearching] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+  // trigger search when search input changes
+  useEffect(() => {
+    if (search.trim() === "") {
+      // if search cleared → restore all employees
+      setEmployees(allEmployees);
+      return;
+    }
+
+    // debounce — wait 400ms after user stops typing
+    const debounce = setTimeout(() => {
+      SearchUser(search);
+    }, 400);
+
+    return () => clearTimeout(debounce); // cleanup
+  }, [search]);
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -24,12 +42,34 @@ function ViewAllEmployees() {
         { withCredentials: true }
       );
       setEmployees(response.data.employees);
+      setAllEmployees(response.data.employees); // save original
     } catch (error) {
       setError("Failed to fetch employees. Please try again.");
-      console.error("Error fetching employees:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // search employees via backend
+  const SearchUser = async (query) => {
+    setSearching(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/admin/employees/search?query=${query}`,
+        { withCredentials: true }
+      );
+      setEmployees(response.data.employees); 
+    } catch (error) {
+      setError("Search failed. Please try again.");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  // clear search → restore all employees
+  const clearSearch = () => {
+    setSearch("");
+    setEmployees(allEmployees); 
   };
 
   // delete employee
@@ -39,24 +79,17 @@ function ViewAllEmployees() {
         `http://localhost:3000/api/admin/employees/deleteemployee/${id}`,
         { withCredentials: true }
       );
-      setEmployees((prev) => prev.filter((emp) => emp._id !== id));
+      const updated = employees.filter((emp) => emp._id !== id);
+      setEmployees(updated);
+      setAllEmployees(updated);
       setDeleteId(null);
       setSuccess("Employee deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000); // auto hide after 3s
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       setError("Failed to delete employee. Please try again.");
       setDeleteId(null);
-      console.error("Error deleting employee:", error);
     }
   };
-
-  // filter employees by search
-  const filtered = employees.filter(
-    (emp) =>
-      emp.EmployeeName?.toLowerCase().includes(search.toLowerCase()) ||
-      emp.employeeID?.toLowerCase().includes(search.toLowerCase()) ||
-      emp.EmployeeRole?.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="employees-wrapper">
@@ -103,8 +136,11 @@ function ViewAllEmployees() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {search && (
-          <button className="search-clear" onClick={() => setSearch("")}>✕</button>
+        {/* searching spinner */}
+        {searching && <span className="search-spinner"></span>}
+        {/* clear button */}
+        {search && !searching && (
+          <button className="search-clear" onClick={clearSearch}>✕</button>
         )}
       </div>
 
@@ -114,7 +150,7 @@ function ViewAllEmployees() {
           <div className="loading-spinner"></div>
           <p>Loading employees...</p>
         </div>
-      ) : filtered.length === 0 ? (
+      ) : employees.length === 0 ? (
         <div className="employees-empty">
           <span>👥</span>
           <h3>No employees found</h3>
@@ -140,7 +176,7 @@ function ViewAllEmployees() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((emp, index) => (
+              {employees.map((emp, index) => (
                 <tr key={emp._id}>
                   <td className="td-index">{index + 1}</td>
                   <td className="td-id">{emp.employeeID}</td>
@@ -172,7 +208,7 @@ function ViewAllEmployees() {
                     </button>
                     <button
                       className="btn-delete"
-                      onClick={() => setDeleteId(emp._id)} 
+                      onClick={() => setDeleteId(emp._id)}
                     >
                       Delete
                     </button>

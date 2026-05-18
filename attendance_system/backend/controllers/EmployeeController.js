@@ -1,4 +1,5 @@
 const cookieParser = require("cookie-parser");
+const brypt = require("bcryptjs");
 const joi = require("joi");
 const Employee = require("../models/Employee_Model");
 
@@ -18,6 +19,7 @@ const employeeSchema = joi.object({
   EmployeeSalary: joi.number().positive().required(),
   EmployeeJoiningDate: joi.date().required(),
   EmployeeRole: joi.string().required(),
+  EmployeePassword: joi.string().min(8).required(), // Password must be at least 8 characters
 });
 
 // Joi schema for validating employee update data (all fields required for update as well)
@@ -55,9 +57,11 @@ const addEmployee = async (req, res) => {
     EmployeeSalary,
     EmployeeJoiningDate,
     EmployeeRole,
+    EmployeePassword,
   } = req.body;
 
   try {
+    // HASHING PASSWORD BEFORE SAVING TO DATABASE
     const newEmployee = new Employee({
       employeeID,
       EmployeeName,
@@ -66,6 +70,7 @@ const addEmployee = async (req, res) => {
       EmployeeSalary,
       EmployeeJoiningDate,
       EmployeeRole,
+      EmployeePassword: await brypt.hash(EmployeePassword, 10),
     });
     await newEmployee.save();
     res
@@ -142,5 +147,22 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
+// search employees by name, id or role
+const searchEmployees = async (req, res) => {
+  const { query } = req.query;
+  try {
+    const employees = await Employee.find({
+      $or: [
+        { EmployeeName: { $regex: query, $options: "i" } },
+        { employeeID: { $regex: query, $options: "i" } },
+        { EmployeeRole: { $regex: query, $options: "i" } }
+      ]
+    });
+    res.status(200).json({ employees });
+  } catch (error) {
+    console.error("Error searching employees:", error);
+    res.status(500).json({ message: "Server error while searching employees" });
+  }
+};
 
-module.exports = { addEmployee, getAllEmployees, getEmployeeById,updateEmployee, deleteEmployee };
+module.exports = { addEmployee, getAllEmployees, getEmployeeById, updateEmployee, deleteEmployee, searchEmployees };
