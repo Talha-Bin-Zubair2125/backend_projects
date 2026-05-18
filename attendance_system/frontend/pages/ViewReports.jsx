@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable"; 
 import "../stylings/Reports.css";
 
 function ViewReports() {
@@ -21,7 +23,7 @@ function ViewReports() {
     "July", "August", "September", "October", "November", "December"
   ];
 
-  // fetch employees for dropdown
+  // fetch employees for dropdown and salary reference
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -37,18 +39,30 @@ function ViewReports() {
     fetchEmployees();
   }, []);
 
-  // fetch attendance by month
+  // Fetch ALL attendance and filter by Month/Year locally
   const fetchReport = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/admin/report/bymonth?month=${selectedMonth}&year=${selectedYear}`,
+        `http://localhost:3000/api/admin/attendance/getall`,
         { withCredentials: true }
       );
-      setAttendance(res.data.attendance || []);
+
+      const allRecords = res.data.attendance || res.data || [];
+
+      const filteredData = allRecords.filter((record) => {
+        if (!record.date) return false;
+        const recordDate = new Date(record.date);
+        return (
+          recordDate.getMonth() + 1 === selectedMonth &&
+          recordDate.getFullYear() === selectedYear
+        );
+      });
+
+      setAttendance(filteredData);
     } catch (err) {
-      setError("Failed to fetch report data");
+      setError("Failed to fetch report data. Please check connection.");
       console.error("Error fetching report:", err);
     } finally {
       setLoading(false);
@@ -64,14 +78,16 @@ function ViewReports() {
     const summary = {};
 
     attendance.forEach((record) => {
-      const empId = record.employeeId?._id;
+      const empId = record.employeeId?._id || record.employeeID;
       if (!empId) return;
+
+      const empDetails = employees.find(e => e._id === empId) || {};
 
       if (!summary[empId]) {
         summary[empId] = {
-          employeeID: record.employeeId?.employeeID,
-          name: record.employeeId?.EmployeeName,
-          salary: record.employeeId?.EmployeeSalary || 0,
+          employeeID: record.employeeId?.employeeID || empDetails.employeeID || "Unknown",
+          name: record.employeeId?.EmployeeName || empDetails.EmployeeName || "Unknown",
+          salary: Number(empDetails.salary || empDetails.EmployeeSalary || record.employeeId?.salary || record.employeeId?.EmployeeSalary || 0),
           present: 0,
           late: 0,
           absent: 0,
@@ -80,21 +96,21 @@ function ViewReports() {
         };
       }
 
-      if (record.status === "present") summary[empId].present++;
-      if (record.status === "late") summary[empId].late++;
-      if (record.status === "absent") summary[empId].absent++;
-      if (record.status === "half-day") summary[empId].halfDay++;
+      const status = record.status ? record.status.toString().toLowerCase().trim() : "";
+      if (status === "present" || status === "on time") summary[empId].present++;
+      if (status === "late") summary[empId].late++;
+      if (status === "absent") summary[empId].absent++;
+      if (status === "half-day" || status === "halfday") summary[empId].halfDay++;
       summary[empId].totalDeduction += record.deduction || 0;
     });
 
     return Object.values(summary);
   };
 
-  // ── Detailed Report — day by day for one employee ──
   const getDetailedData = () => {
     if (!selectedEmployee) return [];
     return attendance.filter(
-      (r) => r.employeeId?._id === selectedEmployee
+      (r) => r.employeeId?._id === selectedEmployee || r.employeeID === selectedEmployee
     );
   };
 
@@ -102,24 +118,151 @@ function ViewReports() {
   const detailedData = getDetailedData();
 
   const getStatusClass = (status) => {
-    switch (status) {
-      case "present": return "status-present";
+    const s = status ? status.toString().toLowerCase().trim() : "";
+    switch (s) {
+      case "present":
+      case "on time": return "status-present";
       case "late": return "status-late";
       case "absent": return "status-absent";
-      case "half-day": return "status-halfday";
+      case "half-day":
+      case "halfday": return "status-halfday";
       default: return "";
     }
   };
 
+  //  CRASH-PROOF PDF GENERATOR WITH VITE & LIVE DETAILED SALARY SUMMARY SUPPORT
+  const handleDownloadPDF = () => {
+    try {
+      console.log("Starting PDF generation process...");
+      const doc = new jsPDF();
+      const monthName = months[selectedMonth - 1] || "Report";
+
+      if (activeTab === "summary") {
+        if (summaryData.length === 0) {
+          alert("No data available to print!");
+          return;
+        }
+
+        doc.setFontSize(16);
+        doc.text(`FirmTrack - Monthly Summary Report`, 14, 15);
+        doc.setFontSize(12);
+        doc.text(`Month: ${monthName} ${selectedYear}`, 14, 22);
+
+        const tableColumn = ["#", "Emp ID", "Name", "Present", "Late", "Half Day", "Absent", "Deduction", "Base Salary", "Final Salary"];
+        const tableRows = [];
+
+        summaryData.forEach((emp, index) => {
+          const recordData = [
+            index + 1,
+            emp.employeeID || "N/A",
+            emp.name || "Unknown",
+            emp.present,
+            emp.late,
+            emp.halfDay,
+            emp.absent,
+            `-${(emp.totalDeduction || 0).toLocaleString()}`,
+            (emp.salary || 0).toLocaleString(),
+            ((emp.salary || 0) - (emp.totalDeduction || 0)).toLocaleString()
+          ];
+          tableRows.push(recordData);
+        });
+
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY: 28,
+          theme: 'grid',
+          headStyles: { fillColor: [33, 37, 41] },
+        });
+
+        doc.save(`Summary_Report_${monthName}_${selectedYear}.pdf`);
+        console.log("Summary PDF Downloaded Successfully!");
+
+      } else {
+        if (!selectedEmployee) {
+          alert("Please select an employee first!");
+          return;
+        }
+        if (detailedData.length === 0) {
+          alert("No detailed records found for this employee to print!");
+          return;
+        }
+        
+        const empDetails = employees.find(e => e._id === selectedEmployee) || {};
+        const empName = empDetails.EmployeeName || "Employee";
+        const empIdText = empDetails.employeeID || "";
+
+        // Calculate metrics for PDF header
+        const baseSalaryDetailed = Number(empDetails.salary || empDetails.EmployeeSalary || 0);
+        const totalDeductionDetailed = detailedData.reduce((sum, r) => sum + (r.deduction || 0), 0);
+        const finalSalaryDetailed = baseSalaryDetailed - totalDeductionDetailed;
+
+        doc.setFontSize(16);
+        doc.text(`FirmTrack - Detailed Attendance Report`, 14, 15);
+        doc.setFontSize(11);
+        doc.text(`Employee: ${empName} (${empIdText})`, 14, 23);
+        doc.text(`Month: ${monthName} ${selectedYear}`, 14, 29);
+        
+        // ADDED SALARY METRICS IN DETAILED PDF HEADER TOO
+        doc.text(`Base Salary: PKR ${baseSalaryDetailed.toLocaleString()}`, 120, 23);
+        doc.text(`Final Net Salary: PKR ${finalSalaryDetailed.toLocaleString()}`, 120, 29);
+
+        const tableColumn = ["#", "Date", "Check In Time", "Status", "Deduction (PKR)"];
+        const tableRows = [];
+
+        detailedData.forEach((record, index) => {
+          let dateStr = "N/A";
+          if (record.date) {
+            dateStr = new Date(record.date).toLocaleDateString("en-PK", { weekday: "short", day: "numeric", month: "short" });
+          }
+
+          let timeStr = "N/A";
+          if (record.checkInTime) {
+            timeStr = new Date(record.checkInTime).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" });
+          }
+          
+          const recordData = [
+            index + 1,
+            dateStr,
+            timeStr,
+            record.status || "N/A",
+            record.deduction > 0 ? `-${record.deduction.toLocaleString()}` : "0"
+          ];
+          tableRows.push(recordData);
+        });
+
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY: 36,
+          theme: 'grid',
+          headStyles: { fillColor: [33, 37, 41] },
+        });
+
+        doc.save(`Detailed_Report_${empName.replace(/\s+/g, '_')}_${monthName}_${selectedYear}.pdf`);
+        console.log("Detailed PDF Downloaded Successfully!");
+      }
+    } catch (pdfError) {
+      console.error("CRITICAL ERROR DURING PDF GENERATION:", pdfError);
+      alert("PDF generation failed. Please check browser console.");
+    }
+  };
+
+  // Pre-calculate Detailed Salary values safely for layout usage
+  const currentDetailedEmp = employees.find(e => e._id === selectedEmployee) || {};
+  const baseSalaryDetailed = Number(currentDetailedEmp.salary || currentDetailedEmp.EmployeeSalary || 0);
+  const totalDeductionDetailed = detailedData.reduce((sum, r) => sum + (r.deduction || 0), 0);
+  const finalSalaryDetailed = baseSalaryDetailed - totalDeductionDetailed;
+
   return (
     <div className="reports-wrapper">
 
-      {/* ── Back Button ── */}
+      {/* Back Button */}
       <button className="reports-back" onClick={() => navigate("/profile")}>
         ← Back to Dashboard
       </button>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="reports-header">
         <div>
           <h1>Reports</h1>
@@ -127,14 +270,14 @@ function ViewReports() {
         </div>
       </div>
 
-      {/* ── Error ── */}
+      {/* Error */}
       {error && (
         <div className="reports-error">
           <span>⚠</span> {error}
         </div>
       )}
 
-      {/* ── Filters ── */}
+      {/* Filters & Action Buttons */}
       <div className="reports-filters">
         <select
           value={selectedMonth}
@@ -150,18 +293,30 @@ function ViewReports() {
           value={selectedYear}
           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
           className="reports-select"
+          disabled={loading}
         >
           <option value={2024}>2024</option>
           <option value={2025}>2025</option>
           <option value={2026}>2026</option>
         </select>
 
-        <button className="btn-generate" onClick={fetchReport} disabled={loading}>
-          {loading ? <span className="btn-spinner"></span> : "↻ Generate Report"}
-        </button>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button className="btn-generate" onClick={fetchReport} disabled={loading}>
+            {loading ? <span className="btn-spinner"></span> : "↻ Generate Report"}
+          </button>
+          
+          <button 
+            className="btn-generate" 
+            style={{ backgroundColor: "#2e7d32", cursor: "pointer" }}
+            onClick={handleDownloadPDF} 
+            disabled={loading}
+          >
+            📥 Download PDF
+          </button>
+        </div>
       </div>
 
-      {/* ── Tabs ── */}
+      {/* Tabs */}
       <div className="reports-tabs">
         <button
           className={`tab-btn ${activeTab === "summary" ? "active" : ""}`}
@@ -177,7 +332,7 @@ function ViewReports() {
         </button>
       </div>
 
-      {/* ── Summary Tab ── */}
+      {/* Summary Tab */}
       {activeTab === "summary" && (
         loading ? (
           <div className="reports-loading">
@@ -214,7 +369,7 @@ function ViewReports() {
                     <td className="td-id">{emp.employeeID}</td>
                     <td className="td-name">
                       <div className="emp-avatar">
-                        {emp.name?.charAt(0).toUpperCase() || "?"}
+                        {(emp.name && emp.name.length > 0) ? emp.name.charAt(0).toUpperCase() : "?"}
                       </div>
                       {emp.name}
                     </td>
@@ -239,10 +394,9 @@ function ViewReports() {
         )
       )}
 
-      {/* ── Detailed Tab ── */}
+      {/* Detailed Tab */}
       {activeTab === "detailed" && (
         <div>
-          {/* Employee selector */}
           <div className="detailed-filter">
             <label>Select Employee:</label>
             <select
@@ -273,7 +427,6 @@ function ViewReports() {
             </div>
           ) : (
             <div className="reports-table-wrapper">
-              {/* Employee Summary Card */}
               <div className="detailed-summary-card">
                 <div className="summary-item">
                   <h4>Total Days</h4>
@@ -281,23 +434,33 @@ function ViewReports() {
                 </div>
                 <div className="summary-item">
                   <h4>Present</h4>
-                  <p className="text-green">{detailedData.filter(r => r.status === "present").length}</p>
+                  <p className="text-green">{detailedData.filter(r => r.status?.toLowerCase() === "present" || r.status?.toLowerCase() === "on time").length}</p>
                 </div>
                 <div className="summary-item">
                   <h4>Late</h4>
-                  <p className="text-orange">{detailedData.filter(r => r.status === "late").length}</p>
+                  <p className="text-orange">{detailedData.filter(r => r.status?.toLowerCase() === "late").length}</p>
                 </div>
                 <div className="summary-item">
                   <h4>Half Day</h4>
-                  <p className="text-purple">{detailedData.filter(r => r.status === "half-day").length}</p>
+                  <p className="text-purple">{detailedData.filter(r => r.status?.toLowerCase() === "half-day" || r.status?.toLowerCase() === "halfday").length}</p>
                 </div>
                 <div className="summary-item">
                   <h4>Absent</h4>
-                  <p className="text-red">{detailedData.filter(r => r.status === "absent").length}</p>
+                  <p className="text-red">{detailedData.filter(r => r.status?.toLowerCase() === "absent").length}</p>
                 </div>
                 <div className="summary-item">
                   <h4>Total Deduction</h4>
-                  <p className="text-red">-{detailedData.reduce((sum, r) => sum + (r.deduction || 0), 0).toLocaleString()}</p>
+                  <p className="text-red">-{totalDeductionDetailed.toLocaleString()}</p>
+                </div>
+                
+                {/* 🔥 NAYE COLUMNS (CARDS) ADDED HERE PERFECTLY */}
+                <div className="summary-item">
+                  <h4>Base Salary</h4>
+                  <p style={{ color: "#212529", fontWeight: "bold" }}>Rs. {baseSalaryDetailed.toLocaleString()}</p>
+                </div>
+                <div className="summary-item">
+                  <h4>Final Salary</h4>
+                  <p style={{ color: "green", fontWeight: "bold" }}>Rs. {finalSalaryDetailed.toLocaleString()}</p>
                 </div>
               </div>
 
@@ -315,12 +478,8 @@ function ViewReports() {
                   {detailedData.map((record, index) => (
                     <tr key={record._id}>
                       <td className="td-index">{index + 1}</td>
-                      <td>{new Date(record.date).toLocaleDateString("en-PK", {
-                        weekday: "short", day: "numeric", month: "short"
-                      })}</td>
-                      <td>{new Date(record.checkInTime).toLocaleTimeString("en-PK", {
-                        hour: "2-digit", minute: "2-digit"
-                      })}</td>
+                      <td>{record.date ? new Date(record.date).toLocaleDateString("en-PK", { weekday: "short", day: "numeric", month: "short" }) : "N/A"}</td>
+                      <td>{record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" }) : "N/A"}</td>
                       <td>
                         <span className={`status-badge ${getStatusClass(record.status)}`}>
                           {record.status}

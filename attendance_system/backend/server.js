@@ -15,6 +15,7 @@ const cookie_secret = process.env.CookieSecret;
 app.use(cookieParser(cookie_secret));
 app.use(express.json());
 
+
 // Connect to MongoDB
 ConnectDB();
 
@@ -33,6 +34,6 @@ app.get("/", (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server is running on port ${PORT}`);
 });

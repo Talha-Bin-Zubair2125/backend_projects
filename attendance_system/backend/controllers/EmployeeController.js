@@ -41,6 +41,11 @@ const employeeUpdateSchema = joi.object({
 });
 
 
+const employeeLoginSchema = joi.object({
+  employeeID: joi.string().required(),
+  password: joi.string().required(),
+});
+
 // Controller for Adding a new employee
 const addEmployee = async (req, res) => {
   // Validate the request body against the Joi schema
@@ -61,7 +66,7 @@ const addEmployee = async (req, res) => {
   } = req.body;
 
   try {
-    // HASHING PASSWORD BEFORE SAVING TO DATABASE
+    // Hash the password before saving to the database for security
     const newEmployee = new Employee({
       employeeID,
       EmployeeName,
@@ -165,4 +170,78 @@ const searchEmployees = async (req, res) => {
   }
 };
 
-module.exports = { addEmployee, getAllEmployees, getEmployeeById, updateEmployee, deleteEmployee, searchEmployees };
+// Employee login controller for Flutter app
+const employeeLogin = async (req, res) => {
+  const { error } = employeeLoginSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  const { employeeID, password } = req.body;
+
+  try {
+    // Check database if employee exists
+    const employee = await Employee.findOne({ employeeID });
+    if (!employee) {
+      return res.status(401).json({ message: "Invalid Employee ID or Password" });
+    }
+
+    // Compare hashed password
+    const passwordMatch = await brypt.compare(password, employee.EmployeePassword);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid Employee ID or Password" });
+    }
+
+    // Successful login response mapped for Flutter app
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: employee._id,
+        employeeID: employee.employeeID,
+        name: employee.EmployeeName,
+        role: employee.EmployeeRole,
+      },
+    });
+  } catch (error) {
+    console.error("Error during employee login:", error);
+    res.status(500).json({ message: "Server error during employee login" });
+  }
+};
+
+// Controller function for Changing Employee Password via Flutter App
+const changePassword = async (req, res) => {
+  const { employeeID, oldPassword, newPassword } = req.body;
+
+  try {
+   
+    const employee = await Employee.findOne({ employeeID });
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    const isMatch = await brypt.compare(oldPassword, employee.EmployeePassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password." });
+    }
+
+    employee.EmployeePassword = await brypt.hash(newPassword, 10);
+    await employee.save();
+
+    res.status(200).json({ success: true, message: "Password updated successfully!" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ message: "Server error changing password." });
+  }
+};
+
+
+module.exports = { 
+  addEmployee, 
+  getAllEmployees, 
+  getEmployeeById, 
+  updateEmployee, 
+  deleteEmployee, 
+  searchEmployees,
+  employeeLogin,
+  changePassword 
+};
