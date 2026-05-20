@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../context/authContext";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../stylings/EditEmployee.css";
 
 function EditEmployee() {
   const { id } = useParams();
-  console.log("id from useParams:", id);
   const navigate = useNavigate();
   const [UpdatedemployeeID, setUpdatedEmployeeID] = useState("");
   const [UpdatedEmployeeName, setUpdatedEmployeeName] = useState("");
   const [UpdatedEmployeeEmail, setUpdatedEmployeeEmail] = useState("");
   const [UpdatedEmployeePhone, setUpdatedEmployeePhone] = useState("");
   const [UpdatedEmployeeSalary, setUpdatedEmployeeSalary] = useState("");
-  const [UpdatedEmployeeJoiningDate, setUpdatedEmployeeJoiningDate] = useState("");
   const [UpdatedEmployeeRole, setUpdatedEmployeeRole] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // fetch employee data and prefill form on mount
   useEffect(() => {
     fetchEmployeeData();
   }, []);
@@ -32,17 +27,11 @@ function EditEmployee() {
         { withCredentials: true }
       );
       const emp = response.data.employee;
-      // prefill form with existing data 
       setUpdatedEmployeeID(emp.employeeID || "");
       setUpdatedEmployeeName(emp.EmployeeName || "");
       setUpdatedEmployeeEmail(emp.EmployeeEmail || "");
       setUpdatedEmployeePhone(emp.EmployeePhone || "");
       setUpdatedEmployeeSalary(emp.EmployeeSalary || "");
-      setUpdatedEmployeeJoiningDate(
-        emp.EmployeeJoiningDate
-          ? new Date(emp.EmployeeJoiningDate).toISOString().split("T")[0]
-          : ""
-      );
       setUpdatedEmployeeRole(emp.EmployeeRole || "");
     } catch (error) {
       setError("Failed to fetch employee data");
@@ -64,13 +53,12 @@ function EditEmployee() {
           EmployeeEmail: UpdatedEmployeeEmail,
           EmployeePhone: UpdatedEmployeePhone,
           EmployeeSalary: UpdatedEmployeeSalary,
-          EmployeeJoiningDate: UpdatedEmployeeJoiningDate,
           EmployeeRole: UpdatedEmployeeRole,
         },
         { withCredentials: true }
       );
       setSuccess("Employee updated successfully!");
-      setTimeout(() => navigate("/viewemployees"), 1500); // redirect after 1.5s
+      setTimeout(() => navigate("/viewemployees"), 1500);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to update employee");
       console.error("Error updating employee:", error);
@@ -82,7 +70,6 @@ function EditEmployee() {
   return (
     <div className="editemployee-wrapper">
 
-      {/* ── Back Button ── */}
       <button className="editemployee-back" onClick={() => navigate("/viewemployees")}>
         ← Back to Employees
       </button>
@@ -96,7 +83,6 @@ function EditEmployee() {
           </div>
         </div>
 
-        {/* ── Notifications ── */}
         {error && (
           <div className="editemployee-notification error">
             <span>⚠</span> {error}
@@ -166,16 +152,6 @@ function EditEmployee() {
               />
             </div>
 
-            <div className="editemployee-field">
-              <label>Joining Date</label>
-              <input
-                type="date"
-                value={UpdatedEmployeeJoiningDate}
-                onChange={(e) => setUpdatedEmployeeJoiningDate(e.target.value)}
-                required
-              />
-            </div>
-
             <div className="editemployee-field full-width">
               <label>Role / Position</label>
               <select
@@ -195,18 +171,10 @@ function EditEmployee() {
           </div>
 
           <div className="editemployee-btn-row">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={() => navigate("/viewemployees")}
-            >
+            <button type="button" className="btn-cancel" onClick={() => navigate("/viewemployees")}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-save"
-              disabled={loading}
-            >
+            <button type="submit" className="btn-save" disabled={loading}>
               {loading ? <span className="edit-spinner"></span> : "Save Changes →"}
             </button>
           </div>

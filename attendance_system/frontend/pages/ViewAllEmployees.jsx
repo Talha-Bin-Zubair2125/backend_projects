@@ -6,7 +6,7 @@ import "../stylings/ViewAllEmployees.css";
 function ViewAllEmployees() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
-  const [allEmployees, setAllEmployees] = useState([]); 
+  const [allEmployees, setAllEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -18,20 +18,15 @@ function ViewAllEmployees() {
     fetchEmployees();
   }, []);
 
-  // trigger search when search input changes
   useEffect(() => {
     if (search.trim() === "") {
-      // if search cleared → restore all employees
       setEmployees(allEmployees);
       return;
     }
-
-    // debounce — wait 400ms after user stops typing
     const debounce = setTimeout(() => {
       SearchUser(search);
     }, 400);
-
-    return () => clearTimeout(debounce); // cleanup
+    return () => clearTimeout(debounce);
   }, [search]);
 
   const fetchEmployees = async () => {
@@ -42,7 +37,7 @@ function ViewAllEmployees() {
         { withCredentials: true }
       );
       setEmployees(response.data.employees);
-      setAllEmployees(response.data.employees); // save original
+      setAllEmployees(response.data.employees);
     } catch (error) {
       setError("Failed to fetch employees. Please try again.");
     } finally {
@@ -50,7 +45,6 @@ function ViewAllEmployees() {
     }
   };
 
-  // search employees via backend
   const SearchUser = async (query) => {
     setSearching(true);
     try {
@@ -58,7 +52,7 @@ function ViewAllEmployees() {
         `http://localhost:3000/api/admin/employees/search?query=${query}`,
         { withCredentials: true }
       );
-      setEmployees(response.data.employees); 
+      setEmployees(response.data.employees);
     } catch (error) {
       setError("Search failed. Please try again.");
     } finally {
@@ -66,13 +60,11 @@ function ViewAllEmployees() {
     }
   };
 
-  // clear search → restore all employees
   const clearSearch = () => {
     setSearch("");
-    setEmployees(allEmployees); 
+    setEmployees(allEmployees);
   };
 
-  // delete employee
   const handleDelete = async (id) => {
     try {
       await axios.delete(
@@ -94,26 +86,20 @@ function ViewAllEmployees() {
   return (
     <div className="employees-wrapper">
 
-      {/* ── Back Button ── */}
       <button className="employees-back" onClick={() => navigate("/profile")}>
         ← Back to Dashboard
       </button>
 
-      {/* ── Header ── */}
       <div className="employees-header">
         <div>
           <h1>Employees</h1>
           <p><span>{employees.length}</span> total records</p>
         </div>
-        <button
-          className="btn-add-employee"
-          onClick={() => navigate("/addemployee")}
-        >
+        <button className="btn-add-employee" onClick={() => navigate("/addemployee")}>
           + Add Employee
         </button>
       </div>
 
-      {/* ── Notifications ── */}
       {error && (
         <div className="employees-notification error" onClick={() => setError("")}>
           <span>⚠</span> {error}
@@ -127,7 +113,6 @@ function ViewAllEmployees() {
         </div>
       )}
 
-      {/* ── Search ── */}
       <div className="employees-search">
         <span className="search-icon">🔍</span>
         <input
@@ -136,15 +121,12 @@ function ViewAllEmployees() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {/* searching spinner */}
         {searching && <span className="search-spinner"></span>}
-        {/* clear button */}
         {search && !searching && (
           <button className="search-clear" onClick={clearSearch}>✕</button>
         )}
       </div>
 
-      {/* ── Table ── */}
       {loading ? (
         <div className="employees-loading">
           <div className="loading-spinner"></div>
@@ -171,7 +153,7 @@ function ViewAllEmployees() {
                 <th>Phone</th>
                 <th>Role</th>
                 <th>Salary (PKR)</th>
-                <th>Joining Date</th>
+                <th>Joined On</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -188,28 +170,20 @@ function ViewAllEmployees() {
                   </td>
                   <td>{emp.EmployeeEmail}</td>
                   <td>{emp.EmployeePhone}</td>
-                  <td>
-                    <span className="role-badge">{emp.EmployeeRole}</span>
-                  </td>
+                  <td><span className="role-badge">{emp.EmployeeRole}</span></td>
                   <td className="td-salary">
                     {emp.EmployeeSalary ? Number(emp.EmployeeSalary).toLocaleString() : "—"}
                   </td>
                   <td>
-                    {emp.EmployeeJoiningDate
-                      ? new Date(emp.EmployeeJoiningDate).toLocaleDateString("en-PK")
+                    {emp.createdAt
+                      ? new Date(emp.createdAt).toLocaleDateString("en-PK")
                       : "—"}
                   </td>
                   <td className="td-actions">
-                    <button
-                      className="btn-edit"
-                      onClick={() => navigate(`/editemployee/${emp._id}`)}
-                    >
+                    <button className="btn-edit" onClick={() => navigate(`/editemployee/${emp._id}`)}>
                       Edit
                     </button>
-                    <button
-                      className="btn-delete"
-                      onClick={() => setDeleteId(emp._id)}
-                    >
+                    <button className="btn-delete" onClick={() => setDeleteId(emp._id)}>
                       Delete
                     </button>
                   </td>
@@ -220,7 +194,6 @@ function ViewAllEmployees() {
         </div>
       )}
 
-      {/* ── Confirm Delete Dialog ── */}
       {deleteId && (
         <div className="delete-overlay" onClick={() => setDeleteId(null)}>
           <div className="delete-dialog" onClick={(e) => e.stopPropagation()}>
@@ -228,12 +201,8 @@ function ViewAllEmployees() {
             <h3>Delete Employee?</h3>
             <p>This action cannot be undone. The employee record will be permanently removed.</p>
             <div className="delete-btn-row">
-              <button className="btn-cancel" onClick={() => setDeleteId(null)}>
-                Cancel
-              </button>
-              <button className="btn-confirm-delete" onClick={() => handleDelete(deleteId)}>
-                Yes, Delete
-              </button>
+              <button className="btn-cancel" onClick={() => setDeleteId(null)}>Cancel</button>
+              <button className="btn-confirm-delete" onClick={() => handleDelete(deleteId)}>Yes, Delete</button>
             </div>
           </div>
         </div>

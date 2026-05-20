@@ -10,7 +10,6 @@ function ViewAttendance() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // filters
   const [searchName, setSearchName] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -19,7 +18,6 @@ function ViewAttendance() {
     fetchAttendance();
   }, []);
 
-  // apply filters whenever data or filters change
   useEffect(() => {
     applyFilters();
   }, [attendance, searchName, filterMonth, filterStatus]);
@@ -40,10 +38,34 @@ function ViewAttendance() {
     }
   };
 
+  // ── Convert UTC date to Pakistan Time ──
+  const toPKT = (dateStr) => {
+    if (!dateStr) return null;
+    const pktOffset = 5 * 60 * 60000; // 5 hours in ms
+    return new Date(new Date(dateStr).getTime() + pktOffset);
+  };
+
+  // ── Format date in PKT ──
+  const formatDatePKT = (dateStr) => {
+    const pktDate = toPKT(dateStr);
+    if (!pktDate) return "—";
+    return pktDate.toLocaleDateString("en-PK");
+  };
+
+  // ── Format time in PKT ──
+  const formatTimePKT = (dateStr) => {
+    const pktDate = toPKT(dateStr);
+    if (!pktDate) return "—";
+    return pktDate.toLocaleTimeString("en-PK", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
   const applyFilters = () => {
     let result = [...attendance];
 
-    // filter by name
+    // filter by name or ID
     if (searchName) {
       result = result.filter((a) =>
         a.employeeId?.EmployeeName?.toLowerCase().includes(searchName.toLowerCase()) ||
@@ -51,7 +73,7 @@ function ViewAttendance() {
       );
     }
 
-    // filter by month
+    // filter by month — uses stored PKT month ✅
     if (filterMonth) {
       result = result.filter((a) => a.month === parseInt(filterMonth));
     }
@@ -88,12 +110,10 @@ function ViewAttendance() {
   return (
     <div className="attendance-wrapper">
 
-      {/* ── Back Button ── */}
       <button className="attendance-back" onClick={() => navigate("/profile")}>
         ← Back to Dashboard
       </button>
 
-      {/* ── Header ── */}
       <div className="attendance-header">
         <div>
           <h1>Attendance Records</h1>
@@ -101,7 +121,6 @@ function ViewAttendance() {
         </div>
       </div>
 
-      {/* ── Error ── */}
       {error && (
         <div className="attendance-error">
           <span>⚠</span> {error}
@@ -171,8 +190,8 @@ function ViewAttendance() {
                 <th>Employee ID</th>
                 <th>Name</th>
                 <th>Role</th>
-                <th>Date</th>
-                <th>Check In Time</th>
+                <th>Date (PKT)</th>
+                <th>Check In (PKT)</th>
                 <th>Status</th>
                 <th>Deduction (PKR)</th>
               </tr>
@@ -191,11 +210,10 @@ function ViewAttendance() {
                   <td>
                     <span className="role-badge">{record.employeeId?.EmployeeRole || "—"}</span>
                   </td>
-                  <td>{new Date(record.date).toLocaleDateString("en-PK")}</td>
-                  <td>{new Date(record.checkInTime).toLocaleTimeString("en-PK", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}</td>
+                  {/* ✅ display date in PKT */}
+                  <td>{formatDatePKT(record.date)}</td>
+                  {/* ✅ display check in time in PKT */}
+                  <td>{record.status === "absent" ? "—" : formatTimePKT(record.checkInTime)}</td>
                   <td>
                     <span className={`status-badge ${getStatusClass(record.status)}`}>
                       {record.status}

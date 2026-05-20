@@ -10,7 +10,6 @@ function AddEmployeeRecords() {
   const [EmployeeEmail, setEmployeeEmail] = useState("");
   const [EmployeePhone, setEmployeePhone] = useState("");
   const [EmployeeSalary, setEmployeeSalary] = useState("");
-  const [EmployeeJoiningDate, setEmployeeJoiningDate] = useState("");
   const [EmployeeRole, setEmployeeRole] = useState("");
   const [EmployeePassword, setEmployeePassword] = useState("employee@123");
   const [ConfirmPassword, setConfirmPassword] = useState("employee@123");
@@ -24,20 +23,19 @@ function AddEmployeeRecords() {
     setError("");
     setSuccess("");
 
-    // validate passwords match
     if (EmployeePassword !== ConfirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    if (EmployeePassword.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (EmployeePassword.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:3000/api/admin/employees/addemployee",
         {
           employeeID,
@@ -45,20 +43,17 @@ function AddEmployeeRecords() {
           EmployeeEmail,
           EmployeePhone,
           EmployeeSalary,
-          EmployeeJoiningDate,
           EmployeeRole,
           EmployeePassword,
         },
         { withCredentials: true }
       );
       setSuccess("Employee added successfully!");
-      // clear form
       setEmployeeID("");
       setEmployeeName("");
       setEmployeeEmail("");
       setEmployeePhone("");
       setEmployeeSalary("");
-      setEmployeeJoiningDate("");
       setEmployeeRole("");
       setEmployeePassword("employee@123");
       setConfirmPassword("employee@123");
@@ -69,13 +64,11 @@ function AddEmployeeRecords() {
     }
   };
 
-  // check if passwords match for indicator
   const passwordMatch = EmployeePassword === ConfirmPassword;
 
   return (
     <div className="addemployee-wrapper">
 
-      {/* ── Back Button ── */}
       <button className="addemployee-back" onClick={() => navigate("/profile")}>
         ← Back to Dashboard
       </button>
@@ -89,14 +82,12 @@ function AddEmployeeRecords() {
           </div>
         </div>
 
-        {/* Error Notification */}
         {error && (
           <div className="addemployee-notification error">
             <span>⚠</span> {error}
           </div>
         )}
 
-        {/* Success Notification */}
         {success && (
           <div className="addemployee-notification success">
             <span>✓</span> {success}
@@ -160,17 +151,7 @@ function AddEmployeeRecords() {
                 required
               />
             </div>
-
-            <div className="addemployee-field">
-              <label>Joining Date</label>
-              <input
-                type="date"
-                value={EmployeeJoiningDate}
-                onChange={(e) => setEmployeeJoiningDate(e.target.value)}
-                required
-              />
-            </div>
-
+            
             <div className="addemployee-field full-width">
               <label>Role / Position</label>
               <select
@@ -239,7 +220,6 @@ function AddEmployeeRecords() {
               )}
             </div>
 
-            {/* ── Default Password Info ── */}
             <div className="addemployee-field full-width">
               <div className="default-password-info">
                 <span>ℹ</span>
@@ -250,23 +230,11 @@ function AddEmployeeRecords() {
           </div>
 
           <div className="addemployee-btn-row">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={() => navigate("/profile")}
-            >
+            <button type="button" className="btn-cancel" onClick={() => navigate("/profile")}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-submit"
-              disabled={loading || !passwordMatch}
-            >
-              {loading ? (
-                <span className="addemployee-spinner"></span>
-              ) : (
-                "Add Employee →"
-              )}
+            <button type="submit" className="btn-submit" disabled={loading || !passwordMatch}>
+              {loading ? <span className="addemployee-spinner"></span> : "Add Employee →"}
             </button>
           </div>
         </form>

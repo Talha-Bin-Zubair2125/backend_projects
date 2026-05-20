@@ -1,7 +1,6 @@
-const moongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-// Creating a schema for employee authentication
-const employeeSchema = new moongoose.Schema({
+const employeeSchema = new mongoose.Schema({
   employeeID: {
     type: String,
     required: true,
@@ -23,17 +22,15 @@ const employeeSchema = new moongoose.Schema({
     type: Number,
     required: true,
   },
-  EmployeeJoiningDate: {
-    type: Date,
-    required: true,
-  },
   EmployeeRole: {
     type: String,
     required: true,
   },
-  EmployeePassword: { type: String, required: true }, 
-});
+  EmployeePassword: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true }); // adds createdAt + updatedAt automatically
 
-// Creating a model for employee authentication
-const Employee = moongoose.model("Employee", employeeSchema);
+const Employee = mongoose.model("Employee", employeeSchema);
 module.exports = Employee;

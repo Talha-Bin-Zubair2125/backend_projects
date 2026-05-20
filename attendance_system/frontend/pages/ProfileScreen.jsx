@@ -9,30 +9,66 @@ function ProfileScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [presentToday, setPresentToday] = useState(0);
+  const [lateToday, setLateToday] = useState(0);
+  const [absentToday, setAbsentToday] = useState(0);
 
   useEffect(() => {
-    const fetchEmployeeCount = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/admin/employees/getallemployees",
-          { withCredentials: true }
-        );
-        setTotalEmployees(response.data.employees?.length || 0);
-      } catch (error) {
-        console.error("Error fetching employee count:", error);
-      }
-    };
-    fetchEmployeeCount();
+    fetchDashboardStats();
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      // fetch all employees
+      const empRes = await axios.get(
+        "http://localhost:3000/api/admin/employees/getallemployees",
+        { withCredentials: true }
+      );
+      const allEmployees = empRes.data.employees || [];
+      const total = allEmployees.length;
+      setTotalEmployees(total);
+
+      // fetch all attendance
+      const attRes = await axios.get(
+        "http://localhost:3000/api/admin/attendance/getall",
+        { withCredentials: true }
+      );
+      const allAttendance = attRes.data.attendance || [];
+
+      // get today's date in Pakistan time
+      const now = new Date();
+      const pktOffset = 5 * 60;
+      const pktNow = new Date(now.getTime() + pktOffset * 60000);
+      const todayStr = pktNow.toISOString().split("T")[0]; // "2026-05-20"
+
+      // filter today's records
+      const todayRecords = allAttendance.filter((record) => {
+        if (!record.date) return false;
+        const recDate = new Date(record.date);
+        const recPKT = new Date(recDate.getTime() + pktOffset * 60000);
+        return recPKT.toISOString().split("T")[0] === todayStr;
+      });
+
+      const present = todayRecords.filter(r => r.status === "present").length;
+      const late = todayRecords.filter(r => r.status === "late").length;
+      const absent = total - todayRecords.length; // absent = total - those who scanned
+
+      setPresentToday(present);
+      setLateToday(late);
+      setAbsentToday(Math.max(0, absent));
+
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:3000/api/auth/admin/logout",
         {},
         { withCredentials: true }
       );
-      console.log(response.data);
       setAdminInfo(null);
       navigate("/");
     } catch (error) {
@@ -60,7 +96,6 @@ function ProfileScreen() {
             <span className="sidebar-icon">⊞</span> Dashboard
           </button>
 
-          {/* ── Employees ── */}
           <button
             className={`sidebar-link ${isActive("/viewemployees") || isActive("/addemployee") ? "active" : ""}`}
             onClick={() => navigate("/viewemployees")}
@@ -105,7 +140,6 @@ function ProfileScreen() {
         </nav>
 
         <div className="sidebar-bottom">
-          {/* ── Settings with sub links ── */}
           <button
             className={`sidebar-link ${isActive("/updateprofile") || isActive("/deductionsettings") ? "active" : ""}`}
             onClick={() => navigate("/updateprofile")}
@@ -156,25 +190,25 @@ function ProfileScreen() {
               <p>{totalEmployees}</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card" onClick={() => navigate("/attendance")} style={{ cursor: "pointer" }}>
             <div className="stat-icon" style={{ background: "#f0fdf4" }}>✅</div>
             <div>
               <h3>Present Today</h3>
-              <p>0</p>
+              <p>{presentToday}</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card" onClick={() => navigate("/attendance")} style={{ cursor: "pointer" }}>
             <div className="stat-icon" style={{ background: "#fff7ed" }}>⏰</div>
             <div>
               <h3>Late Today</h3>
-              <p>0</p>
+              <p>{lateToday}</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card" onClick={() => navigate("/attendance")} style={{ cursor: "pointer" }}>
             <div className="stat-icon" style={{ background: "#fff1f2" }}>❌</div>
             <div>
               <h3>Absent Today</h3>
-              <p>0</p>
+              <p>{absentToday}</p>
             </div>
           </div>
         </div>
