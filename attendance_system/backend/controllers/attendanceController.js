@@ -4,40 +4,30 @@ const Employee = require("../models/Employee_Model");
 const Deduction = require("../models/deductionModel");
 
 // ── Pakistan Time Helpers ──
-const getPakistanTime = () => {
-    const now = new Date();
-    const pakistanOffset = 5 * 60;
-    return new Date(now.getTime() + pakistanOffset * 60000);
-};
-
 const getPakistanDayRange = () => {
-    const pkt = getPakistanTime();
-    const pakistanOffsetMs = 5 * 60 * 60000;
+    const now = new Date();
+    const utcTimestamp = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const pktTime = new Date(utcTimestamp + (5 * 3600000)); // Hard locked to PKT (UTC+5)
 
-    const startOfDayPKT = new Date(pkt);
-    startOfDayPKT.setHours(0, 0, 0, 0);
+    const yyyy = pktTime.getFullYear();
+    const mm = String(pktTime.getMonth() + 1).padStart(2, "0");
+    const dd = String(pktTime.getDate()).padStart(2, "0");
 
-    const endOfDayPKT = new Date(pkt);
-    endOfDayPKT.setHours(23, 59, 59, 999);
+    const start = new Date(`${yyyy}-${mm}-${dd}T00:00:00.000Z`);
+    const end = new Date(`${yyyy}-${mm}-${dd}T23:59:59.999Z`);
 
-    return {
-        start: new Date(startOfDayPKT.getTime() - pakistanOffsetMs),
-        end: new Date(endOfDayPKT.getTime() - pakistanOffsetMs),
-        pktTime: pkt
-    };
+    return { start, end, pktTime };
 };
 
 const getDayRangeForDate = (dateStr) => {
-    const pakistanOffsetMs = 5 * 60 * 60000;
     const [year, month, day] = dateStr.split("-").map(Number);
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
 
-    const startPKT = new Date(year, month - 1, day, 0, 0, 0, 0);
-    const endPKT = new Date(year, month - 1, day, 23, 59, 59, 999);
+    const start = new Date(`${year}-${mm}-${dd}T00:00:00.000Z`);
+    const end = new Date(`${year}-${mm}-${dd}T23:59:59.999Z`);
 
-    return {
-        start: new Date(startPKT.getTime() - pakistanOffsetMs),
-        end: new Date(endPKT.getTime() - pakistanOffsetMs),
-    };
+    return { start, end };
 };
 
 // ── Mark Attendance via QR ──
@@ -75,23 +65,28 @@ const markAttendance = async (req, res) => {
             return res.status(500).json({ message: "Deduction settings not configured" });
         }
 
-        const currentTime = `${String(pktTime.getHours()).padStart(2, "0")}:${String(pktTime.getMinutes()).padStart(2, "0")}`;
+        const hours = pktTime.getHours();
+        const minutes = pktTime.getMinutes();
+        
+        const currentTimeStr = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 
         let status = "present";
         let deduction = 0;
 
-        if (currentTime > settings.allowedHalfDayTime) {
+        if (currentTimeStr > settings.allowedHalfDayTime) {
             status = "half-day";
             deduction = settings.deductionPerHalfDay;
-        } else if (currentTime > settings.lateArrivalTime) {
+        } else if (currentTimeStr > settings.lateArrivalTime) {
             status = "late";
             deduction = settings.deductionPerLate;
         }
 
+        const dynamicPKTDate = new Date(pktTime.getTime());
+
         const attendance = await Attendance.create({
             employeeId: employee._id,
-            date: new Date(),
-            checkInTime: new Date(),
+            date: dynamicPKTDate, 
+            checkInTime: dynamicPKTDate, // Schema safety verified
             status,
             month: pktTime.getMonth() + 1,
             year: pktTime.getFullYear(),
@@ -114,7 +109,7 @@ const markAttendance = async (req, res) => {
     }
 };
 
-// ── Get All Attendance (admin) ── ✅ added EmployeeJoiningDate
+// ── Get All Attendance (admin) ──
 const getAllAttendance = async (req, res) => {
     try {
         const attendance = await Attendance.find()
@@ -128,7 +123,7 @@ const getAllAttendance = async (req, res) => {
     }
 };
 
-// ── Get Attendance By Month (reports) ── ✅ added EmployeeJoiningDate
+// ── Get Attendance By Month (reports) ──
 const getAttendanceByMonth = async (req, res) => {
     const { month, year } = req.query;
     try {
@@ -177,10 +172,11 @@ const getTodayAttendanceStatus = async (req, res) => {
 // ── Backfill Absent for Specific Date ──
 const backfillAbsentForDate = async (dateStr) => {
     const { start, end } = getDayRangeForDate(dateStr);
-    const pakistanOffsetMs = 5 * 60 * 60000;
     const [year, month, day] = dateStr.split("-").map(Number);
-    const targetDate = new Date(year, month - 1, day);
-    const pktDate = new Date(targetDate.getTime() + pakistanOffsetMs);
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    
+    const targetDateISO = new Date(`${year}-${mm}-${dd}T00:00:00.000Z`);
 
     const allEmployees = await Employee.find();
     const settings = await Deduction.findOne();
@@ -197,15 +193,15 @@ const backfillAbsentForDate = async (dateStr) => {
         if (!marked) {
             await Attendance.create({
                 employeeId: employee._id,
-                date: targetDate,
-                checkInTime: targetDate,
+                date: targetDateISO,
+                checkInTime: targetDateISO,
                 status: "absent",
                 deduction: deductionPerAbsence,
-                month: pktDate.getMonth() + 1,
-                year: pktDate.getFullYear()
+                month: month,
+                year: year
             });
             absentCount++;
-            console.log(`❌ Absent backfilled for: ${employee.EmployeeName} on ${dateStr}`);
+            console.log(`Absent backfilled for: ${employee.EmployeeName} on ${dateStr}`);
         }
     }
 

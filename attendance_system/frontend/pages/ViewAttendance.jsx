@@ -38,28 +38,33 @@ function ViewAttendance() {
     }
   };
 
-  // ── Convert UTC date to Pakistan Time ──
+  // ── 🔥 FIXED: Manual offset calculation hata di kyunke browser auto-adjust karta hai ──
   const toPKT = (dateStr) => {
     if (!dateStr) return null;
-    const pktOffset = 5 * 60 * 60000; // 5 hours in ms
-    return new Date(new Date(dateStr).getTime() + pktOffset);
+    return new Date(dateStr); 
   };
 
-  // ── Format date in PKT ──
+  // ── Format date strictly in en-PK template ──
   const formatDatePKT = (dateStr) => {
     const pktDate = toPKT(dateStr);
     if (!pktDate) return "—";
-    return pktDate.toLocaleDateString("en-PK");
+    // dynamic rendering split rules to strictly ensure local day representation
+    return pktDate.toLocaleDateString("en-PK", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
   };
 
-  // ── Format time in PKT ──
+  // ── Format time strictly matching local execution ──
   const formatTimePKT = (dateStr) => {
     const pktDate = toPKT(dateStr);
     if (!pktDate) return "—";
     return pktDate.toLocaleTimeString("en-PK", {
       hour: "2-digit",
-      minute: "2-digit"
-    });
+      minute: "2-digit",
+      hour12: true
+    }).toLowerCase(); // am/pm formatting matching your layout
   };
 
   const applyFilters = () => {
@@ -73,7 +78,7 @@ function ViewAttendance() {
       );
     }
 
-    // filter by month — uses stored PKT month ✅
+    // filter by month
     if (filterMonth) {
       result = result.filter((a) => a.month === parseInt(filterMonth));
     }
@@ -210,9 +215,7 @@ function ViewAttendance() {
                   <td>
                     <span className="role-badge">{record.employeeId?.EmployeeRole || "—"}</span>
                   </td>
-                  {/* ✅ display date in PKT */}
                   <td>{formatDatePKT(record.date)}</td>
-                  {/* ✅ display check in time in PKT */}
                   <td>{record.status === "absent" ? "—" : formatTimePKT(record.checkInTime)}</td>
                   <td>
                     <span className={`status-badge ${getStatusClass(record.status)}`}>
