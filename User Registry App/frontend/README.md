@@ -1,49 +1,12 @@
-# User Registry App
+# React + Vite
 
-A full-stack web application built using **React (Vite)** on the frontend and **Express.js** on the backend. This project allows users to input user details (First Name, Last Name, Age), store them locally in state, batch-submit the list to an Express API server, and fetch the stored user records.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
----
+Currently, two official plugins are available:
 
-## 🚀 Features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- **Form Inputs:** Input First Name, Last Name, and Age with controlled React state.
-- **Local List Aggregation:** Accumulate multiple user objects on the frontend before submitting.
-- **Batch Submission (`POST /User`):** Send user arrays to the Express backend memory array.
-- **Fetch Stored Records (`GET /GetUsers`):** Retrieve the updated user list from the backend server.
-- **CORS Enabled:** Seamless client-server communication using standard `fetch` API calls.
+## Expanding the ESLint configuration
 
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework:** React.js (via Vite)
-- **Language:** JavaScript (ES6+)
-- **State Management:** React Hooks (`useState`)
-- **HTTP Client:** Fetch API
-
-### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Middleware:** `cors`, `express.json`
-
----
-
-## 📁 Folder Structure
-
-```text
-practice_project_2/
-├── backend/
-│   ├── node_modules/
-│   ├── package.json
-│   ├── package-lock.json
-│   └── server.js
-└── frontend/
-    ├── node_modules/
-    ├── src/
-    │   ├── App.jsx
-    │   └── main.jsx
-    ├── package.json
-    ├── package-lock.json
-    ├── README.md
-    └── vite.config.js
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

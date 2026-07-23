@@ -1,44 +1,12 @@
-# React Express User Connection App
+# React + Vite
 
-A minimalist full-stack web application built using **React (Vite)** on the frontend and **Express.js** on the backend. This project demonstrates basic client-server communication using `fetch` API, state management with React Hooks (`useState`), JSON body parsing, and CORS handling.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
----
+Currently, two official plugins are available:
 
-## 🚀 Features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- **Fetch Welcome Message:** Retrieve data from backend API endpoint (`GET /`)
-- **Submit User Data:** Send username payloads via JSON POST request (`POST /Message`)
-- **Interactive UI:** Responsive controlled inputs built with React hooks
-- **Cross-Origin Resource Sharing:** Pre-configured CORS middleware for seamless local integration
+## Expanding the ESLint configuration
 
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework:** React.js (via Vite)
-- **Language:** JavaScript (ES6+)
-- **HTTP Client:** Fetch API
-
-### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Middleware:** `cors`, `express.json`
-
----
-
-## 📁 Folder Structure
-
-```text
-practice_project_1/
-├── backend/
-│   ├── node_modules/
-│   ├── package.json
-│   └── server.js
-└── frontend/
-    ├── node_modules/
-    ├── src/
-    │   ├── App.jsx
-    │   └── main.jsx
-    ├── package.json
-    └── vite.config.js
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
