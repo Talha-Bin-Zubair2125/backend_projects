@@ -1,6 +1,6 @@
-# 🚀 Node.js & Express Backend Projects Collection
+# 🚀 Node.js, Express & React Projects Collection
 
-Welcome to the **`backend_projects`** repository! This repo serves as a central collection of Node.js, Express.js, and MERN stack applications, demonstrating backend concepts including RESTful APIs, authentication (JWT & Cookies), role-based access control (RBAC), database integration with MongoDB/Mongoose, middleware design, and proxy integrations.
+Welcome to the **`backend_projects`** repository! This repo serves as a central collection of Node.js, Express.js, and MERN stack applications, demonstrating concepts including RESTful APIs, authentication (JWT & Cookies), role-based access control (RBAC), database integration with MongoDB/Mongoose, proxy integrations, and modular React frontend interfaces.
 
 ---
 
@@ -8,15 +8,24 @@ Welcome to the **`backend_projects`** repository! This repo serves as a central 
 
 - **Runtime Environment:** Node.js
 - **Backend Framework:** Express.js
+- **Frontend Framework:** React 18, Vite
 - **Database / ODM:** MongoDB, Mongoose
 - **Authentication & Security:** JSON Web Tokens (JWT), HttpOnly Cookies, Bcrypt, CORS
-- **Frontend / Integration:** React.js, Vite, Axios, React Router DOM
+- **Routing & Styling:** React Router DOM, Tailwind CSS, Custom CSS3
 
 ---
 
 ## 📁 Repository Directory & Projects Index
 
-Below is an overview of the key backend projects and applications contained within this repository:
+Below is an overview of the projects contained within this repository:
+
+### 💼 CodeCelix Internship Tasks
+- **`code_celix_task`** – Responsive frontend pages covering Pricing & Plans, Partnerships, and How It Works.
+- **`code_celix_task_case_studies_page`** – React application featuring Case Studies and Pricing pages built with React Router.
+- **`code_celix_task_home_and_about_page`** – Interactive UI featuring a dual-ring lerp custom cursor, dynamic scrolling navbar, and Home/About views.
+- **`code_celix_task_contact_and_demo_page`** – Full-stack MERN application handling Contact Us submissions and Live Demo bookings with MongoDB storage.
+- **`code_celix_task_pricing`** – Modular React subscription plan and pricing comparison interface.
+- **`code_celix_task_services_page`** – Service showcase and company offerings UI built with React and Vite.
 
 ### 🔐 Authentication & Role-Based Systems
 - **`PublishPulse – Role-Based Editorial`** – Full-stack publishing application with role-based workflows for Readers, Authors, and Admins.
